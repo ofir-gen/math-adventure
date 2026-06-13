@@ -1,6 +1,7 @@
 // החנות: אביזרים וצבעים לדמות + ביצת הפתעה. קונים במטבעות — הכוכבים לא נפגעים.
 import { el, topbarEl } from '../ui/components.js';
 import { profileCharSVG, characterSVG } from '../ui/character-svg.js';
+import { flagSVG } from '../ui/flags.js';
 import { characterStage, charByType } from '../engine/rewards.js';
 import { shopItems, itemById, hatchEgg, eggPool, EGG_PRICE } from '../engine/shopCatalog.js';
 import { confetti } from '../ui/confetti.js';
@@ -53,7 +54,7 @@ export function shop(container, ctx, params = {}) {
     // אביזרים
     scroll.appendChild(el('div', 'section-title', 'תחפושות לדמות'));
     const accGrid = el('div', 'shop-grid');
-    for (const item of shopItems().filter(i => !['color', 'bg', 'char'].includes(i.slot))) accGrid.appendChild(itemCard(item, profile));
+    for (const item of shopItems().filter(i => !['color', 'bg', 'char', 'flag'].includes(i.slot))) accGrid.appendChild(itemCard(item, profile));
     scroll.appendChild(accGrid);
 
     // צבעים
@@ -67,6 +68,12 @@ export function shop(container, ctx, params = {}) {
     const bgGrid = el('div', 'shop-grid');
     for (const item of shopItems().filter(i => i.slot === 'bg')) bgGrid.appendChild(itemCard(item, profile));
     scroll.appendChild(bgGrid);
+
+    // דגלי מדינות — הדמות מחזיקה ביד
+    scroll.appendChild(el('div', 'section-title', 'דגלי מדינות 🚩'));
+    const flagGrid = el('div', 'shop-grid');
+    for (const item of shopItems().filter(i => i.slot === 'flag')) flagGrid.appendChild(itemCard(item, profile));
+    scroll.appendChild(flagGrid);
 
     // נדירים שכבר יצאו מביצים — שיהיה להם בית במדף
     const rares = profile.owned.map(itemById).filter(i => i?.rare);
@@ -84,9 +91,13 @@ export function shop(container, ctx, params = {}) {
   function itemCard(item, profile) {
     const owned = profile.owned.includes(item.id);
     const worn = profile.equipped[item.slot] === item.id;
+    const isFlag = item.slot === 'flag';
     const card = el('button', `shop-item ${owned ? 'owned' : ''} ${worn ? 'worn' : ''}`);
-    const state = worn ? '✓ לובשת' : owned ? 'ללבוש' : `🪙 ${item.price}`;
-    card.innerHTML = `<span class="sicon">${item.icon}</span><span class="sname">${item.name}</span><span class="sprice">${state}</span>`;
+    const state = isFlag
+      ? (worn ? '✓ מחזיקה' : owned ? 'להחזיק' : `🪙 ${item.price}`)
+      : (worn ? '✓ לובשת' : owned ? 'ללבוש' : `🪙 ${item.price}`);
+    const iconHtml = isFlag ? flagSVG(item.id, 50, 33) : `<span class="sicon">${item.icon}</span>`;
+    card.innerHTML = `${iconHtml}<span class="sname">${item.name}</span><span class="sprice">${state}</span>`;
     card.addEventListener('click', () => {
       if (owned) {
         // הלבשה / הסרה

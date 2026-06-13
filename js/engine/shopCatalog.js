@@ -1,9 +1,11 @@
-// קטלוג החנות: אביזרים לדמות, צבעים, וביצי הפתעה
-// slot: head | eyes | neck | back | color — פריט אחד לבוש בכל חריץ
+// קטלוג החנות: אביזרים לדמות, צבעים, רקעים, דמויות, דגלים, וביצי הפתעה
+// slot: head | eyes | neck | back | color | bg | char | flag — פריט אחד פעיל בכל חריץ
 // rare: true = לא נמכר בחנות, יוצא רק מביצת הפתעה
 // tn = שם מנוקד להקראה
+import { FLAGS } from '../ui/flags.js';
 
 export const EGG_PRICE = 25;
+export const FLAG_PRICE = 20;
 
 export const ITEMS = [
   // ראש
@@ -41,6 +43,9 @@ export const ITEMS = [
   { id: 'bk_rainbow', slot: 'back', name: 'כנפי קשת', tn: 'כַּנְפֵי קֶשֶׁת', icon: '🌈', price: 0, rare: true },
 ];
 
+// דגלי מדינות — נקנים בחנות, והדמות מחזיקה אותם ביד. 20 דגלים כולל ישראל.
+for (const f of FLAGS) ITEMS.push({ id: f.id, slot: 'flag', name: f.name, tn: f.tn, price: FLAG_PRICE });
+
 // צבעי גוף חלופיים (דורסים את צבעי החיה המקוריים)
 export const COLOR_PALETTES = {
   cl_pink: { body: '#f7b8d0', belly: '#fde8f0', ear: '#e88ab0' },
@@ -55,8 +60,9 @@ export const itemById = id => ITEMS.find(i => i.id === id);
 // מה שמוצג על המדפים (בלי הנדירים)
 export const shopItems = () => ITEMS.filter(i => !i.rare);
 
-// מה יכול לצאת מביצה: כל מה שעוד אין לה (כולל נדירים, אבל לא דמויות — הן יקרות מדי לביצה של 25)
-export const eggPool = profile => ITEMS.filter(i => !profile.owned.includes(i.id) && i.slot !== 'char');
+// מה יכול לצאת מביצה: כל מה שעוד אין לה — חוץ מדמויות (יקרות) ודגלים (אוסף נפרד בחנות)
+export const eggPool = profile => ITEMS.filter(i =>
+  !profile.owned.includes(i.id) && i.slot !== 'char' && i.slot !== 'flag');
 
 export function hatchEgg(profile) {
   const pool = eggPool(profile);

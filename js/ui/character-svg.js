@@ -2,6 +2,7 @@
 // שלב 1 תינוק → שלב 5 עם כתר. הגודל גדל עם השלב, אביזרים מתווספים.
 // אביזרים קנויים (opts.equipped) מסתירים את אביזרי-השלב באותו אזור.
 import { COLOR_PALETTES } from '../engine/shopCatalog.js';
+import { flagInner } from './flags.js';
 
 const PALETTE = {
   bunny: { body: '#f3e2d3', belly: '#fdf6ef', ear: '#f6b8c8', cheek: '#f6b8c8' },
@@ -41,7 +42,15 @@ export function characterSVG(type, stage, size = 120, opts = {}) {
     ${eq.eyes ? eyesItem(eq.eyes) : ''}
     ${eq.neck ? neckItem(eq.neck) : ''}
     ${eq.head ? headItem(eq.head) : ''}
+    ${eq.flag ? heldFlag(eq.flag) : ''}
   </svg>`;
+}
+
+// דגל מדינה שהדמות מחזיקה ביד הימנית — מוט + בד
+function heldFlag(id) {
+  return `<rect x="77" y="30" width="2.2" height="45" rx="1" fill="#8a6a4a"/>` +
+    `<circle cx="78.1" cy="30" r="2.4" fill="#ffd54a"/>` +
+    `<g transform="translate(79.4,31) scale(0.17,0.17)">${flagInner(id)}</g>`;
 }
 
 // דמות של פרופיל, לבושה במה שקנתה
