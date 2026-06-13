@@ -23,12 +23,18 @@ export function unlock() {
 
 function pickVoice() {
   if (!('speechSynthesis' in window)) return;
-  const choose = () => {
-    const voices = speechSynthesis.getVoices();
-    heVoice = voices.find(v => v.lang && (v.lang.startsWith('he') || v.lang.startsWith('iw'))) || null;
-  };
-  choose();
-  if (!heVoice) speechSynthesis.addEventListener('voiceschanged', choose, { once: true });
+  getHeVoice();
+  // באנדרואיד רשימת הקולות נטענת באיחור — מאזינים, וגם מנסים שוב אחרי השהיה
+  if (!heVoice) speechSynthesis.addEventListener('voiceschanged', getHeVoice, { once: true });
+}
+
+// בוחר קול עברי — נבדק מחדש בכל פעם עד שנמצא (הרשימה באנדרואיד מתמלאת באיחור)
+function getHeVoice() {
+  if (heVoice) return heVoice;
+  if (!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices() || [];
+  heVoice = voices.find(v => v.lang && (v.lang.toLowerCase().startsWith('he') || v.lang.toLowerCase().startsWith('iw'))) || null;
+  return heVoice;
 }
 
 export function speak(text) {
@@ -37,15 +43,23 @@ export function speak(text) {
   try {
     speechSynthesis.cancel(); // באנדרואיד התור נתקע בלי זה
     const u = new SpeechSynthesisUtterance(text);
-    if (heVoice) u.voice = heVoice;
-    u.lang = 'he-IL';
+    const v = getHeVoice();
+    if (v) u.voice = v;
+    u.lang = 'he-IL'; // גם בלי קול ברשימה — מנחה את המנוע לנסות עברית
     u.rate = 0.95;
     speechSynthesis.speak(u);
   } catch { /* TTS לא זמין */ }
 }
 
 export function hasHebrewVoice() {
-  return !!heVoice;
+  return !!getHeVoice();
+}
+
+// בדיקת קול להורה: מחזיר {supported, hebrew, sample} ומשמיע משפט ניסיון
+export function testVoice() {
+  const supported = 'speechSynthesis' in window;
+  speak('שָׁלוֹם! אֲנִי הַקּוֹל שֶׁל הַמִּשְׂחָק.');
+  return { supported, hebrew: hasHebrewVoice() };
 }
 
 function tone(freq, startDelay, duration, type = 'sine', gain = 0.14) {

@@ -2,7 +2,7 @@
 import { el, topbarEl } from '../ui/components.js';
 import { getCurriculum } from '../curriculum/index.js';
 import * as storage from '../storage.js';
-import { sfx } from '../audio.js';
+import { sfx, testVoice } from '../audio.js';
 
 // קידוד/פענוח תומך-עברית (UTF-8) לקוד נקי להעתקה
 const encode = str => btoa(unescape(encodeURIComponent(str)));
@@ -27,6 +27,29 @@ export function parent(container, ctx) {
       `<b>${p.name}</b> — ⭐ ${p.totals.stars} כוכבים · ${done}/${total} שלבים · 🪙 ${p.coins}`));
   }
   scroll.appendChild(summary);
+
+  // ===== בדיקת קול עברי =====
+  scroll.appendChild(el('div', 'section-title', '🔊 בדיקת קול'));
+  scroll.appendChild(el('div', 'parent-hint',
+    'חשוב במיוחד לאלין — היא שומעת את ההוראות. לחצו לבדיקה: אם לא שומעים עברית, צריך להתקין קול עברי במכשיר.'));
+  const voiceBtn = el('button', 'btn primary', '🔊 בדוק קול עברי');
+  const voiceMsg = el('div', 'parent-msg');
+  voiceBtn.addEventListener('click', () => {
+    const res = testVoice();
+    if (!res.supported) {
+      voiceMsg.textContent = '✗ הדפדפן הזה לא תומך בהקראה.';
+      voiceMsg.className = 'parent-msg err';
+    } else if (res.hebrew) {
+      voiceMsg.textContent = '✓ נמצא קול עברי — אמורים לשמוע משפט עכשיו.';
+      voiceMsg.className = 'parent-msg ok';
+    } else {
+      voiceMsg.innerHTML = '⚠️ לא נמצא קול עברי במכשיר. כך מתקינים בסמסונג:<br>'
+        + 'הגדרות ← ניהול כללי ← טקסט לדיבור ← שירות הדיבור של Google ← '
+        + 'התקנת נתוני קול ← עברית (להוריד). ואז לבחור עברית כשפה ולנסות שוב.';
+      voiceMsg.className = 'parent-msg err';
+    }
+  });
+  scroll.append(voiceBtn, voiceMsg);
 
   // ===== ייצוא =====
   scroll.appendChild(el('div', 'section-title', '📤 ייצוא — לגיבוי או להעברה'));
