@@ -1,0 +1,89 @@
+// הקוריקולום של אלין — 18 שלבים, 3 עולמות, הכל ציורי: בלי קריאת ספרות
+// type: count | tapN | compareMore | compareLess | matchSame | sameOrNot |
+//       visualAdd | visualSub | oneMore   (או types: [...] לשלבי בוס)
+// layout: row | scatter | rows5
+// כרטיסי תשובה: ספרה גדולה + נקודות לספירה; digitsOnly: ספרה בלבד (שלבים אחרונים)
+
+export const meta = { id: 'alin', questionsPerRound: 8 };
+
+export const worlds = [
+  { n: 1, name: 'גן החיות', icon: '🦁', theme: 'zoo' },
+  { n: 2, name: 'החווה', icon: '🐮', theme: 'farm' },
+  { n: 3, name: 'הגינה הקסומה', icon: '🌷', theme: 'garden' },
+];
+
+// name = שם רבים לתצוגה; tn = אותו שם מנוקד להקראה (TTS מבטא מנוקד הרבה יותר נכון);
+// g = מין דקדוקי (m/f) להתאמת מילות המספר
+export const pools = {
+  zoo: [
+    { e: '🦁', name: 'אריות', tn: 'אֲרָיוֹת', g: 'm' },
+    { e: '🐵', name: 'קופים', tn: 'קוֹפִים', g: 'm' },
+    { e: '🐘', name: 'פילים', tn: 'פִּילִים', g: 'm' },
+    { e: '🦒', name: "ג'ירפות", tn: "גִ'ירָפוֹת", g: 'f' },
+    { e: '🐧', name: 'פינגווינים', tn: 'פִּינְגְּוִינִים', g: 'm' },
+    { e: '🦓', name: 'זברות', tn: 'זֶבְּרוֹת', g: 'f' },
+  ],
+  farm: [
+    { e: '🐮', name: 'פרות', tn: 'פָּרוֹת', g: 'f' },
+    { e: '🐷', name: 'חזירים', tn: 'חֲזִירִים', g: 'm' },
+    { e: '🐔', name: 'תרנגולות', tn: 'תַּרְנְגוֹלוֹת', g: 'f' },
+    { e: '🐑', name: 'כבשים', tn: 'כְּבָשִׂים', g: 'f' },
+    { e: '🦆', name: 'ברווזים', tn: 'בַּרְוָזִים', g: 'm' },
+    { e: '🐰', name: 'ארנבים', tn: 'אַרְנָבִים', g: 'm' },
+  ],
+  garden: [
+    { e: '🌷', name: 'פרחים', tn: 'פְּרָחִים', g: 'm' },
+    { e: '🍓', name: 'תותים', tn: 'תּוּתִים', g: 'm' },
+    { e: '🦋', name: 'פרפרים', tn: 'פַּרְפָּרִים', g: 'm' },
+    { e: '🍎', name: 'תפוחים', tn: 'תַּפּוּחִים', g: 'm' },
+    { e: '🐞', name: 'חיפושיות', tn: 'חִפּוּשִׁיּוֹת', g: 'f' },
+    { e: '🍪', name: 'עוגיות', tn: 'עוּגִיּוֹת', g: 'f' },
+  ],
+};
+
+const Q = 8;
+
+export const levels = [
+  // ===== עולם 1: גן החיות — ספירה =====
+  { id: 'a01', world: 1, title: 'ספירה עד 3', type: 'count', pool: 'zoo',
+    range: { min: 1, max: 3 }, layout: 'row', cardMax: 5, questions: Q },
+  { id: 'a02', world: 1, title: 'ספירה עד 5', type: 'count', pool: 'zoo',
+    range: { min: 2, max: 5 }, layout: 'row', cardMax: 6, questions: Q },
+  { id: 'a03', world: 1, title: 'ספירה מפוזרת', type: 'count', pool: 'zoo',
+    range: { min: 2, max: 6 }, layout: 'scatter', cardMax: 7, questions: Q },
+  { id: 'a04', world: 1, title: 'ספירה עד 10', type: 'count', pool: 'zoo',
+    range: { min: 4, max: 10 }, layout: 'rows5', cardMax: 10, questions: Q },
+  { id: 'a05', world: 1, title: 'געי בדיוק!', type: 'tapN', pool: 'zoo',
+    range: { min: 2, max: 5 }, extra: { min: 1, max: 3 }, questions: Q },
+  { id: 'a06', world: 1, title: 'שלב הבוס! 👑', types: ['count', 'tapN'], pool: 'zoo',
+    range: { min: 2, max: 8 }, extra: { min: 1, max: 3 }, layout: 'rows5', cardMax: 9, questions: Q },
+
+  // ===== עולם 2: החווה — השוואה והתאמה =====
+  { id: 'a07', world: 2, title: 'איפה יש יותר?', type: 'compareMore', pool: 'farm',
+    range: { min: 2, max: 7 }, gap: { min: 3, max: 4 }, questions: Q },
+  { id: 'a08', world: 2, title: 'יותר — קרוב קרוב', type: 'compareMore', pool: 'farm',
+    range: { min: 3, max: 8 }, gap: { min: 1, max: 2 }, questions: Q },
+  { id: 'a09', world: 2, title: 'איפה יש פחות?', type: 'compareLess', pool: 'farm',
+    range: { min: 2, max: 8 }, gap: { min: 1, max: 3 }, questions: Q },
+  { id: 'a10', world: 2, title: 'אותו מספר', type: 'matchSame', pool: 'farm',
+    range: { min: 2, max: 6 }, questions: Q },
+  { id: 'a11', world: 2, title: 'כן או לא?', type: 'sameOrNot', pool: 'farm',
+    range: { min: 2, max: 6 }, questions: Q },
+  { id: 'a12', world: 2, title: 'שלב הבוס! 👑', types: ['compareMore', 'compareLess', 'matchSame'], pool: 'farm',
+    range: { min: 2, max: 8 }, gap: { min: 1, max: 3 }, questions: Q },
+
+  // ===== עולם 3: הגינה הקסומה — חשבון חזותי =====
+  { id: 'a13', world: 3, title: 'ביחד עד 3', type: 'visualAdd', pool: 'garden',
+    total: { max: 3 }, questions: Q },
+  { id: 'a14', world: 3, title: 'ביחד עד 5', type: 'visualAdd', pool: 'garden',
+    total: { max: 5 }, questions: Q },
+  { id: 'a15', world: 3, title: 'כמה נשארו?', type: 'visualSub', pool: 'garden',
+    start: { min: 2, max: 5 }, remove: { min: 1, max: 2 }, questions: Q },
+  { id: 'a16', world: 3, title: 'עוד אחד!', type: 'oneMore', pool: 'garden',
+    range: { min: 1, max: 5 }, questions: Q },
+  { id: 'a17', world: 3, title: 'מספרים בלי עזרה', type: 'visualAdd', pool: 'garden',
+    total: { max: 5 }, digitsOnly: true, questions: Q },
+  { id: 'a18', world: 3, title: 'שלב הבוס! 👑', types: ['visualAdd', 'visualSub', 'oneMore'], pool: 'garden',
+    total: { max: 5 }, start: { min: 2, max: 5 }, remove: { min: 1, max: 2 }, range: { min: 1, max: 5 },
+    digitsOnly: true, questions: Q },
+];

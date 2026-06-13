@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<title>בדיקות גנרטור — הרפתקת המתמטיקה</title>
+<style>
+  body { font-family: system-ui; padding: 20px; background: #f5f2fb; }
+  .pass { color: #1f8a4d; }
+  .fail { color: #c43e3e; font-weight: bold; }
+  pre { background: #fff; padding: 8px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>בדיקות גנרטור (1,000 דגימות לכל שלב)</h1>
+<div id="out">רץ...</div>
+<script type="module">
+import { levels as noyaLevels } from './js/curriculum/noya.js';
+import { levels as alinLevels } from './js/curriculum/alin.js';
+import { makeQuestion } from './js/engine/generator.js';
+
+const out = document.getElementById('out');
+out.innerHTML = '';
+const N = 1000;
+let failures = 0;
+
+const carries = (a, b) => (a % 10) + (b % 10) >= 10;
+const borrows = (a, b) => (a % 10) < (b % 10);
+
+function report(id, title, errors) {
+  const div = document.createElement('div');
+  if (errors.length === 0) {
+    div.className = 'pass';
+    div.textContent = `✓ ${id} — ${title}`;
+  } else {
+    failures++;
+    div.className = 'fail';
+    div.innerHTML = `✗ ${id} — ${title}<pre>${errors.slice(0, 5).join('\n')}</pre>`;
+  }
+  out.appendChild(div);
+}
+
+// ===== שלבי נויה: בדיקת אילוצי משוואות =====
+for (const level of noyaLevels) {
+  const errors = [];
+  for (let i = 0; i < N; i++) {
+    const q = makeQuestion(level);
+    try {
+      if (q.mode !== 'keypad') throw `mode=${q.mode}`;
+      if (q.answer < 0) throw `תשובה שלילית: ${q.answer}`;
+      if (!Number.isInteger(q.answer)) throw `תשובה לא שלמה: ${q.answer}`;
+
+      // בעיה מילולית: בדיקת תקינות הסיפור והטווח
+      if (level.op === 'word') {
+        if (!q.story || q.story.length < 15) throw `סיפור חסר: ${q.story}`;
+        if (q.story.includes('undefined') || q.story.includes('NaN')) throw `סיפור פגום: ${q.story}`;
+        if (level.result?.max !== undefined && q.answer > level.result.max) throw `תשובה ${q.answer} > ${level.result.max}`;
+        if (!q.tts) throw 'אין הקראה';
+        continue;
+      }
+
+      const ops = q.parts.filter(p => p === '+' || p === '−');
+      const slotIdx = q.parts.indexOf('?');
+      if (slotIdx < 0) throw 'אין סלוט ?';
+
+      // שחזור המשוואה המלאה והצבת התשובה
+      const full = q.parts.map(p => p === '?' ? q.answer : p);
+      const eqIdx = full.indexOf('=');
+      const left = full.slice(0, eqIdx);
+      const right = full[eqIdx + 1];
+      let value = left[0];
+      for (let j = 1; j < left.length; j += 2) {
+        const op = left[j], operand = left[j + 1];
+        if (op === '+') value += operand;
+        else if (op === '−') value -= operand;
+        else if (op === '×') value *= operand;
+        else if (op === ':') value /= operand;
+        else throw `אופרטור לא מוכר: ${op}`;
+      }
+      if (value !== right) throw `משוואה לא נכונה: ${full.join(' ')}`;
+
+      // כפל/חילוק: בדיקת לוחות ושלמות
+      if (level.op === 'mul' || level.op === 'mulMissing') {
+        const factors = [full[0], full[2]];
+        if (!factors.some(f => level.tables.includes(f))) throw `לוח לא ברשימה: ${full.join(' ')}`;
+      }
+      if (level.op === 'div' || level.op === 'divMissing') {
+        if (full[0] % full[2] !== 0) throw `חילוק עם שארית: ${full.join(' ')}`;
+        // בשני המצבים full[2] הוא המחלק (במספר חסר — הוא התשובה)
+        if (!level.divisors.includes(full[2])) throw `מחלק לא ברשימה: ${full.join(' ')}`;
+      }
+
+      // אילוצי תוצאה — חלים על תוצאת הפעולה (צד שווה)
+      const result = q.parts[q.parts.length - 1] === '?' ? q.answer : full[full.length - 1];
+      if (level.result?.max !== undefined && result > level.result.max) throw `תוצאה ${result} > ${level.result.max}`;
+      if (level.result?.min !== undefined && q.parts[q.parts.length - 1] === '?' && result < level.result.min) throw `תוצאה ${result} < ${level.result.min}`;
+
+      // אילוצי המרה/פריטה — רק לתרגילים עם שני אופרנדים והאופ הקבוע
+      if ((level.op === 'add' || level.op === 'sub') && level.regroup && level.regroup !== 'any' && ops.length === 1) {
+        const [x, , y] = [full[0], full[1], full[2]];
+        const has = full[1] === '+' ? carries(x, y) : borrows(x, y);
+        if (level.regroup === 'required' && !has) throw `חסרה המרה: ${full.join(' ')}`;
+        if (level.regroup === 'forbidden' && has) throw `המרה אסורה: ${full.join(' ')}`;
+      }
+    } catch (err) {
+      errors.push(String(err));
+      if (errors.length >= 5) break;
+    }
+  }
+  report(level.id, level.title, errors);
+}
+
+// ===== שלבי אלין: תקינות מבנה ותשובות =====
+for (const level of alinLevels) {
+  const errors = [];
+  for (let i = 0; i < N; i++) {
+    const q = makeQuestion(level);
+    try {
+      if (!q.tts) throw 'אין טקסט הקראה';
+      if (q.mode === 'cards') {
+        if (q.cards.counts.length !== 3) throw `מספר כרטיסים: ${q.cards.counts.length}`;
+        if (new Set(q.cards.counts).size !== 3) throw `כרטיסים כפולים: ${q.cards.counts}`;
+        if (q.cards.correctIndex < 0 || q.cards.correctIndex > 2) throw 'אינדקס נכון שגוי';
+        if (q.cards.counts.some(c => c < 0)) throw `כמות שלילית: ${q.cards.counts}`;
+        if (q.cards.counts.some(c => c > 12)) throw `כמות גדולה מדי: ${q.cards.counts}`;
+      } else if (q.mode === 'tap') {
+        if (q.target >= q.total) throw `יעד ${q.target} >= סהכ ${q.total}`;
+        if (q.total > 9) throw `יותר מדי עצמים: ${q.total}`;
+      } else if (q.mode === 'pickGroup') {
+        if (q.groups[0] === q.groups[1]) throw `קבוצות שוות: ${q.groups}`;
+        if (q.correctIndex !== 0 && q.correctIndex !== 1) throw 'אינדקס שגוי';
+      } else if (q.mode === 'yesNo') {
+        const [g1, g2] = q.groupsDisplay;
+        if ((g1.count === g2.count) !== q.answer) throw `תשובה לא תואמת: ${g1.count},${g2.count} → ${q.answer}`;
+      } else {
+        throw `mode לא צפוי: ${q.mode}`;
+      }
+    } catch (err) {
+      errors.push(String(err));
+      if (errors.length >= 5) break;
+    }
+  }
+  report(level.id, level.title, errors);
+}
+
+const summary = document.createElement('h2');
+summary.className = failures ? 'fail' : 'pass';
+summary.textContent = failures ? `${failures} שלבים נכשלו` : 'כל הבדיקות עברו ✓';
+out.prepend(summary);
+document.title = (failures ? 'FAIL' : 'PASS') + ' — בדיקות';
+</script>
+</body>
+</html>
