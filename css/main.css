@@ -52,6 +52,7 @@ body[data-theme="palace"]  { background: linear-gradient(170deg, #c8a8f5 0%, #8a
 body[data-theme="rainbow"] { background: linear-gradient(170deg, #ff9ec4 0%, #ffd86f 35%, #a0e8af 70%, #7ec8ff 100%); }
 body[data-theme="shapes"]  { background: linear-gradient(170deg, #c3c8ff 0%, #8f9fe8 55%, #5f6fd0 100%); }
 body[data-theme="numbers"] { background: linear-gradient(170deg, #ffd6a0 0%, #f5a86c 55%, #e87f9e 100%); }
+body[data-theme="savanna"] { background: linear-gradient(170deg, #ffe9a8 0%, #e8c06f 50%, #b8923f 100%); }
 body[data-theme="space"] { color: #f0ecff; }
 
 /* רקעים מהחנות — גוברים על ערכת העולם (מוגדרים אחרי ערכות הנושא) */
@@ -483,6 +484,7 @@ button {
 }
 .answer-card.yesno { font-size: 3rem; min-width: 110px; }
 .answer-card .big-emoji { font-size: 3rem; line-height: 1; }
+.answer-card.size-card { align-items: center; justify-content: center; min-height: 120px; }
 
 /* רצף (עולם הרצפים) */
 .seq-row {

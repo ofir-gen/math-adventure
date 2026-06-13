@@ -13,6 +13,7 @@ export const worlds = [
   { n: 4, name: 'עולם הרצפים', icon: '🌈', theme: 'rainbow' },
   { n: 5, name: 'ארץ הצורות', icon: '🔷', theme: 'shapes' },
   { n: 6, name: 'עיר המספרים', icon: '🔢', theme: 'numbers' },
+  { n: 7, name: 'ארץ הגדלים', icon: '🐘', theme: 'savanna' },
 ];
 
 // name = שם רבים לתצוגה; tn = אותו שם מנוקד להקראה (TTS מבטא מנוקד הרבה יותר נכון);
@@ -113,4 +114,12 @@ export const levels = [
   { id: 'a34', world: 6, title: 'כמה זה? בחרי מספר', type: 'count', pool: 'garden', range: { min: 2, max: 5 }, layout: 'row', cardMax: 6, digitsOnly: true, questions: Q },
   { id: 'a35', world: 6, title: 'מצאי כמה שצריך', type: 'digitToQty', pool: 'farm', range: { min: 2, max: 5 }, questions: Q },
   { id: 'a36', world: 6, title: 'שלב הבוס! 👑', types: ['digitFind', 'digitToQty', 'count'], pool: 'zoo', range: { min: 2, max: 5 }, cardMax: 6, layout: 'row', digitsOnly: true, questions: Q },
+
+  // ===== עולם 7: ארץ הגדלים — גדול וקטן =====
+  { id: 'a37', world: 7, title: 'הגדול ביותר', type: 'sizeBig', count: 2, questions: Q },
+  { id: 'a38', world: 7, title: 'מי הכי גדול?', type: 'sizeBig', count: 3, questions: Q },
+  { id: 'a39', world: 7, title: 'הקטן ביותר', type: 'sizeSmall', count: 2, questions: Q },
+  { id: 'a40', world: 7, title: 'מי הכי קטן?', type: 'sizeSmall', count: 3, questions: Q },
+  { id: 'a41', world: 7, title: 'גדול וקטן', types: ['sizeBig', 'sizeSmall'], count: 3, questions: Q },
+  { id: 'a42', world: 7, title: 'שלב הבוס! 👑', types: ['sizeBig', 'sizeSmall'], count: 3, questions: Q },
 ];

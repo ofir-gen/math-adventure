@@ -151,12 +151,18 @@ export function exercise(container, ctx, { levelId }) {
     if (q.display) qArea.appendChild(displayEl(q.display));
     const row = el('div', 'answer-cards');
     const kind = q.cards.kind || 'count';
-    const list = kind === 'emoji' ? q.cards.emojis : kind === 'digit' ? q.cards.digits : q.cards.counts;
+    const list = kind === 'emoji' ? q.cards.emojis
+      : kind === 'digit' ? q.cards.digits
+      : kind === 'emojiSize' ? q.cards.sizes
+      : q.cards.counts;
     list.forEach((val, i) => {
       let card;
       if (kind === 'emoji') {
         card = el('button', 'answer-card');
         card.innerHTML = `<span class="big-emoji">${val}</span>`;
+      } else if (kind === 'emojiSize') {
+        card = el('button', 'answer-card size-card');
+        card.innerHTML = `<span class="big-emoji" style="font-size:${(val * 1.8).toFixed(2)}rem">${q.cards.emoji}</span>`;
       } else if (kind === 'digit') {
         card = el('button', 'answer-card');
         card.innerHTML = `<div class="big-digit">${val}</div>`;

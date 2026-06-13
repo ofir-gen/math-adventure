@@ -118,12 +118,17 @@ for (const level of alinLevels) {
       if (!q.tts) throw 'אין טקסט הקראה';
       if (q.mode === 'cards') {
         const kind = q.cards.kind || 'count';
-        const list = kind === 'emoji' ? q.cards.emojis : kind === 'digit' ? q.cards.digits : q.cards.counts;
-        if (!Array.isArray(list) || list.length < 3 || list.length > 4) throw `מספר כרטיסים: ${list && list.length}`;
+        const list = kind === 'emoji' ? q.cards.emojis
+          : kind === 'digit' ? q.cards.digits
+          : kind === 'emojiSize' ? q.cards.sizes
+          : q.cards.counts;
+        const minCards = kind === 'emojiSize' ? 2 : 3;
+        if (!Array.isArray(list) || list.length < minCards || list.length > 4) throw `מספר כרטיסים: ${list && list.length}`;
         if (kind !== 'emoji' && new Set(list).size !== list.length) throw `כרטיסים כפולים: ${list}`;
         if (q.cards.correctIndex < 0 || q.cards.correctIndex >= list.length) throw 'אינדקס נכון שגוי';
         if (list.some(c => c === undefined || c === null)) throw `כרטיס ריק: ${list}`;
-        if (kind !== 'emoji' && list.some(c => c < 0 || c > 12)) throw `מספר לא תקין: ${list}`;
+        if (kind === 'count' || kind === 'digit') { if (list.some(c => c < 0 || c > 12)) throw `מספר לא תקין: ${list}`; }
+        if (kind === 'emojiSize' && !q.cards.emoji) throw 'אין אימוג׳י לגודל';
       } else if (q.mode === 'tap') {
         if (q.target >= q.total) throw `יעד ${q.target} >= סהכ ${q.total}`;
         if (q.total > 9) throw `יותר מדי עצמים: ${q.total}`;

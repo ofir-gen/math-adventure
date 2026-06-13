@@ -235,6 +235,9 @@ const SHAPES = [
   { e: '⭐', name: 'כוכב', bTn: 'בַּכּוֹכָב' },
   { e: '❤️', name: 'לב', bTn: 'בַּלֵּב' },
 ];
+// אובייקטים עגולים שנראים טוב בהגדלה/הקטנה (עולם גדול וקטן)
+const SIZE_EMOJIS = ['🎈', '⚽', '⭐', '🍎', '🌸', '🔵', '🦋', '🐢'];
+const SIZE_SCALES = [0.85, 1.35, 2.0, 2.7];
 
 function makeVisual(level) {
   const type = level.types ? pick(level.types) : level.type;
@@ -476,6 +479,23 @@ function makeVisual(level) {
         emoji: item.e, groups, correctIndex: groups.indexOf(n),
         display: { bigDigit: n },
         key: `dq:${n}/${groups.join(',')}`,
+      };
+    }
+
+    // ===== ארץ הגדלים — גדול וקטן =====
+    case 'sizeBig':
+    case 'sizeSmall': {
+      const big = type === 'sizeBig';
+      const emoji = pick(SIZE_EMOJIS);
+      const count = level.count || 3;
+      const sizes = pickN(SIZE_SCALES, count);
+      const target = big ? Math.max(...sizes) : Math.min(...sizes);
+      return {
+        mode: 'cards',
+        prompt: big ? 'געי בגדול ביותר' : 'געי בקטן ביותר',
+        tts: big ? 'גְּעִי בַּגָּדוֹל בְּיוֹתֵר' : 'גְּעִי בַּקָּטָן בְּיוֹתֵר',
+        cards: { kind: 'emojiSize', emoji, sizes, correctIndex: sizes.indexOf(target) },
+        key: `sz:${big}:${sizes.join(',')}`,
       };
     }
   }
