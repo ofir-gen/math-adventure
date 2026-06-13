@@ -5,10 +5,11 @@ import { exercise } from './screens/exercise.js';
 import { prizes } from './screens/prizes.js';
 import { character } from './screens/character.js';
 import { shop } from './screens/shop.js';
+import { parent } from './screens/parent.js';
 import { unlock } from './audio.js';
 import { getProfile } from './storage.js';
 
-const screens = { profileSelect, worldMap, exercise, prizes, character, shop };
+const screens = { profileSelect, worldMap, exercise, prizes, character, shop, parent };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },

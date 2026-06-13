@@ -34,6 +34,12 @@ export function profileSelect(container, ctx) {
     cards.appendChild(card);
   }
   screen.appendChild(cards);
+
+  // כניסת הורים קטנה (גיבוי והעברת התקדמות)
+  const parentLink = el('button', 'parent-link', '👨‍👩‍👧 הורים — גיבוי והעברה');
+  parentLink.addEventListener('click', () => { sfx.tap(); ctx.navigate('parent'); });
+  screen.appendChild(parentLink);
+
   container.appendChild(screen);
 }
 

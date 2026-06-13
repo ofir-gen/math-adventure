@@ -711,6 +711,56 @@ button {
   50% { transform: rotate(8deg) translateY(-4px); }
 }
 
+/* ===== אזור הורים ===== */
+.parent-link {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 18px;
+}
+.parent-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.parent-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.psum-row {
+  background: var(--card);
+  color: var(--text);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 12px 16px;
+  font-size: 1.05rem;
+}
+.parent-hint { color: #fff; font-size: 0.95rem; line-height: 1.5; text-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.code-box {
+  width: 100%;
+  min-height: 90px;
+  border-radius: 14px;
+  border: 2px solid #d8cdee;
+  padding: 12px;
+  font-size: 0.85rem;
+  font-family: monospace;
+  direction: ltr;
+  resize: vertical;
+  color: var(--text);
+}
+.parent-scroll .btn { align-self: flex-start; }
+.parent-msg { font-weight: 800; font-size: 1.05rem; padding: 4px 0; }
+.parent-msg.ok { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.parent-msg.err { color: #ffe3e3; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
 /* ===== אנימציות ===== */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
