@@ -224,16 +224,29 @@ function eq(parts, answer, tts) {
 
 // ===== תרגילים ציוריים (אלין) =====
 
+const pickN = (arr, n) => shuffle(arr).slice(0, n);
+// אימוג'ים בולטים לרצפים
+const PATTERN_EMOJIS = ['🍎', '🍌', '🍓', '🍇', '🔴', '🔵', '🟡', '⭐', '🌙', '🌸', '🐶', '🐱', '🦋', '🐠'];
+// צורות עם שם ל"געי ב..." מנוקד
+const SHAPES = [
+  { e: '🔵', name: 'עיגול', bTn: 'בָּעִגּוּל' },
+  { e: '🟦', name: 'ריבוע', bTn: 'בָּרִבּוּעַ' },
+  { e: '🔺', name: 'משולש', bTn: 'בַּמְּשֻׁלָּשׁ' },
+  { e: '⭐', name: 'כוכב', bTn: 'בַּכּוֹכָב' },
+  { e: '❤️', name: 'לב', bTn: 'בַּלֵּב' },
+];
+
 function makeVisual(level) {
   const type = level.types ? pick(level.types) : level.type;
-  const pool = pools[level.pool];
-  const item = pick(pool);
-  const other = pick(pool.filter(p => p.e !== item.e));
+  // עולמות ללא pool (רצפים/צורות/מספרים-זיהוי) — לא טוענים מאגר חיות
+  const pool = level.pool ? pools[level.pool] : null;
+  const item = pool ? pick(pool) : null;
+  const other = pool ? pick(pool.filter(p => p.e !== item.e)) : null;
   // ברירת מחדל: ספרה + נקודות עזר לספירה; שלבים מתקדמים: ספרה בלבד
   const digitStyle = level.digitsOnly ? 'digitsOnly' : 'digits';
   // שמות מנוקדים להקראה (התצוגה נשארת בלי ניקוד)
-  const itemN = item.tn || item.name;
-  const otherN = other.tn || other.name;
+  const itemN = item ? (item.tn || item.name) : '';
+  const otherN = other ? (other.tn || other.name) : '';
 
   switch (type) {
     case 'count': {
@@ -349,6 +362,120 @@ function makeVisual(level) {
         display: { groups: [{ emoji: item.e, count: n }], layout: 'row' },
         cards: { counts, correctIndex: counts.indexOf(n + 1), emoji: other.e, style: digitStyle },
         key: `one:${n}`,
+      };
+    }
+
+    // ===== עולם הרצפים =====
+    case 'pattern': {
+      const unitType = pick(level.patterns); // 'AB' | 'ABC' | 'AAB' | 'ABB' | 'AABB'
+      const distinct = [...new Set(unitType.split(''))].length;
+      const syms = pickN(PATTERN_EMOJIS, distinct);
+      const map = {}; let si = 0;
+      const unit = unitType.split('').map(ch => (ch in map ? map[ch] : (map[ch] = syms[si++])));
+      const unitLen = unit.length;
+      const shownLen = unitLen * 2 + ri(0, unitLen - 1); // לפחות שתי חזרות מלאות
+      const seq = [];
+      for (let i = 0; i < shownLen; i++) seq.push(unit[i % unitLen]);
+      const answer = unit[shownLen % unitLen];
+      // מסיחים: שאר סמלי הרצף + מילוי מהמאגר
+      const distract = [...new Set(unit.filter(e => e !== answer))];
+      const fill = PATTERN_EMOJIS.filter(e => e !== answer && !distract.includes(e));
+      while (distract.length < 2) distract.push(fill.shift());
+      const opts = shuffle([answer, ...distract.slice(0, 2)]);
+      return {
+        mode: 'cards',
+        prompt: 'מה בא אחר כך?',
+        tts: 'מָה בָּא אַחַר כָּךְ? גְּעִי בַּתְּשׁוּבָה הַנְּכוֹנָה',
+        display: { sequence: seq, next: true },
+        cards: { kind: 'emoji', emojis: opts, correctIndex: opts.indexOf(answer) },
+        key: `pat:${seq.join('')}`,
+      };
+    }
+
+    // ===== ארץ הצורות =====
+    case 'shapeFind': {
+      const opts = pickN(SHAPES, level.shapeCount || 3);
+      const target = pick(opts);
+      return {
+        mode: 'cards',
+        prompt: `געי ב${target.name}`,
+        tts: `גְּעִי ${target.bTn}`,
+        cards: { kind: 'emoji', emojis: opts.map(s => s.e), correctIndex: opts.indexOf(target) },
+        key: `sf:${target.e}${opts.length}`,
+      };
+    }
+
+    case 'shapeMatch': {
+      const opts = pickN(SHAPES, 3);
+      const target = pick(opts);
+      const emojis = shuffle(opts.map(s => s.e));
+      return {
+        mode: 'cards',
+        prompt: 'מצאי את אותה צורה',
+        tts: 'מִצְאִי אֶת אוֹתָהּ צוּרָה',
+        display: { bigEmoji: target.e },
+        cards: { kind: 'emoji', emojis, correctIndex: emojis.indexOf(target.e) },
+        key: `sm:${target.e}`,
+      };
+    }
+
+    case 'oddOneOut': {
+      let same, diff;
+      if (level.useShapes || !pool) {
+        const s = pickN(SHAPES, 2); same = s[0].e; diff = s[1].e;
+      } else {
+        const it = pickN(pool, 2); same = it[0].e; diff = it[1].e;
+      }
+      const arr = shuffle([same, same, same, diff]);
+      return {
+        mode: 'cards',
+        prompt: 'מה לא שייך?',
+        tts: 'מָה לֹא שַׁיָּךְ? גְּעִי בַּשּׁוֹנֶה',
+        cards: { kind: 'emoji', emojis: arr, correctIndex: arr.indexOf(diff) },
+        key: `odd:${same}${diff}`,
+      };
+    }
+
+    // ===== עיר המספרים =====
+    case 'digitFind': {
+      const n = ri(level.range.min, level.range.max);
+      const cap = level.cardMax || 10;
+      const set = new Set([n]);
+      let guard = 0;
+      while (set.size < 3 && guard++ < 100) {
+        const d = ri(1, cap);
+        if (d !== n) set.add(d);
+      }
+      let w = n + 1;
+      while (set.size < 3) set.add(w++);
+      const opts = shuffle([...set]);
+      return {
+        mode: 'cards',
+        prompt: 'איזה מספר שמעת?',
+        tts: `גְּעִי בַּמִּסְפָּר ${numWord(n)}`,
+        cards: { kind: 'digit', digits: opts, correctIndex: opts.indexOf(n) },
+        key: `df:${n}/${opts.join(',')}`,
+      };
+    }
+
+    case 'digitToQty': {
+      const n = ri(level.range.min, level.range.max);
+      const set = new Set([n]);
+      let guard = 0;
+      while (set.size < 3 && guard++ < 100) {
+        const d = ri(1, level.range.max + 1);
+        if (d !== n && d >= 1) set.add(d);
+      }
+      let w = n + 1;
+      while (set.size < 3) set.add(w++);
+      const groups = shuffle([...set]);
+      return {
+        mode: 'pickGroup',
+        prompt: `מצאי ${n}`,
+        tts: `מִצְאִי קְבוּצָה שֶׁל ${numWord(n, item.g)} ${itemN}`,
+        emoji: item.e, groups, correctIndex: groups.indexOf(n),
+        display: { bigDigit: n },
+        key: `dq:${n}/${groups.join(',')}`,
       };
     }
   }

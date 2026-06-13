@@ -148,10 +148,21 @@ export function exercise(container, ctx, { levelId }) {
 
   // ===== כרטיסי תשובה (אלין) =====
   function renderCards(q) {
-    qArea.appendChild(displayEl(q.display));
+    if (q.display) qArea.appendChild(displayEl(q.display));
     const row = el('div', 'answer-cards');
-    q.cards.counts.forEach((count, i) => {
-      const card = answerCardEl(count, q.cards.emoji, { style: q.cards.style, showDigits: q.cards.showDigits });
+    const kind = q.cards.kind || 'count';
+    const list = kind === 'emoji' ? q.cards.emojis : kind === 'digit' ? q.cards.digits : q.cards.counts;
+    list.forEach((val, i) => {
+      let card;
+      if (kind === 'emoji') {
+        card = el('button', 'answer-card');
+        card.innerHTML = `<span class="big-emoji">${val}</span>`;
+      } else if (kind === 'digit') {
+        card = el('button', 'answer-card');
+        card.innerHTML = `<div class="big-digit">${val}</div>`;
+      } else {
+        card = answerCardEl(val, q.cards.emoji, { style: q.cards.style, showDigits: q.cards.showDigits });
+      }
       card.classList.add('pop-in');
       card.addEventListener('click', () => {
         if (state.locked) return;
@@ -163,8 +174,9 @@ export function exercise(container, ctx, { levelId }) {
     qArea.appendChild(row);
   }
 
-  // ===== בחירת קבוצה (איפה יש יותר/פחות) =====
+  // ===== בחירת קבוצה (איפה יש יותר/פחות, ומצאי כמות לפי ספרה) =====
   function renderPickGroup(q) {
+    if (q.display) qArea.appendChild(displayEl(q.display));
     const wrap = el('div', 'pick-groups');
     q.groups.forEach((count, i) => {
       const g = groupEl(q.emoji, count);
@@ -226,8 +238,24 @@ export function exercise(container, ctx, { levelId }) {
     qArea.appendChild(row);
   }
 
-  // תצוגת השאלה: קבוצה אחת / שתיים עם פלוס
+  // תצוגת השאלה: רצף / צורת דוגמה / ספרה גדולה / קבוצה אחת / שתיים עם פלוס
   function displayEl(display) {
+    if (display.sequence) {
+      const wrap = el('div', 'seq-row');
+      for (const e of display.sequence) wrap.appendChild(el('span', 'seq-item', e));
+      if (display.next) wrap.appendChild(el('span', 'seq-item seq-q', '❓'));
+      return wrap;
+    }
+    if (display.bigEmoji) {
+      const w = el('div', 'sample-box');
+      w.innerHTML = `<span class="big-emoji big">${display.bigEmoji}</span>`;
+      return w;
+    }
+    if (display.bigDigit !== undefined) {
+      const w = el('div', 'sample-box');
+      w.innerHTML = `<div class="big-digit huge">${display.bigDigit}</div>`;
+      return w;
+    }
     if (display.plus) {
       const wrap = el('div', 'visual-add');
       display.groups.forEach((grp, i) => {

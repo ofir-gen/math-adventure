@@ -10,6 +10,9 @@ export const worlds = [
   { n: 1, name: 'גן החיות', icon: '🦁', theme: 'zoo' },
   { n: 2, name: 'החווה', icon: '🐮', theme: 'farm' },
   { n: 3, name: 'הגינה הקסומה', icon: '🌷', theme: 'garden' },
+  { n: 4, name: 'עולם הרצפים', icon: '🌈', theme: 'rainbow' },
+  { n: 5, name: 'ארץ הצורות', icon: '🔷', theme: 'shapes' },
+  { n: 6, name: 'עיר המספרים', icon: '🔢', theme: 'numbers' },
 ];
 
 // name = שם רבים לתצוגה; tn = אותו שם מנוקד להקראה (TTS מבטא מנוקד הרבה יותר נכון);
@@ -86,4 +89,28 @@ export const levels = [
   { id: 'a18', world: 3, title: 'שלב הבוס! 👑', types: ['visualAdd', 'visualSub', 'oneMore'], pool: 'garden',
     total: { max: 5 }, start: { min: 2, max: 5 }, remove: { min: 1, max: 2 }, range: { min: 1, max: 5 },
     digitsOnly: true, questions: Q },
+
+  // ===== עולם 4: עולם הרצפים — "מה בא אחר כך?" =====
+  { id: 'a19', world: 4, title: 'רצף פשוט', type: 'pattern', patterns: ['AB'], questions: Q },
+  { id: 'a20', world: 4, title: 'רצף שלישייה', type: 'pattern', patterns: ['ABC'], questions: Q },
+  { id: 'a21', world: 4, title: 'רצף כפול', type: 'pattern', patterns: ['AAB', 'ABB'], questions: Q },
+  { id: 'a22', world: 4, title: 'רצף ארוך', type: 'pattern', patterns: ['AABB'], questions: Q },
+  { id: 'a23', world: 4, title: 'רצפים מעורבים', type: 'pattern', patterns: ['AB', 'ABC'], questions: Q },
+  { id: 'a24', world: 4, title: 'שלב הבוס! 👑', type: 'pattern', patterns: ['AB', 'ABC', 'AAB', 'ABB', 'AABB'], questions: Q },
+
+  // ===== עולם 5: ארץ הצורות =====
+  { id: 'a25', world: 5, title: 'מצאי את הצורה', type: 'shapeFind', shapeCount: 3, questions: Q },
+  { id: 'a26', world: 5, title: 'הרבה צורות', type: 'shapeFind', shapeCount: 4, questions: Q },
+  { id: 'a27', world: 5, title: 'אותה צורה', type: 'shapeMatch', questions: Q },
+  { id: 'a28', world: 5, title: 'מה לא שייך?', type: 'oddOneOut', useShapes: true, questions: Q },
+  { id: 'a29', world: 5, title: 'מי שונה?', type: 'oddOneOut', pool: 'zoo', questions: Q },
+  { id: 'a30', world: 5, title: 'שלב הבוס! 👑', types: ['shapeFind', 'shapeMatch', 'oddOneOut'], shapeCount: 3, pool: 'farm', questions: Q },
+
+  // ===== עולם 6: עיר המספרים — גשר לזיהוי ספרות =====
+  { id: 'a31', world: 6, title: 'איזה מספר?', type: 'digitFind', range: { min: 1, max: 3 }, cardMax: 5, questions: Q },
+  { id: 'a32', world: 6, title: 'מספרים עד 5', type: 'digitFind', range: { min: 2, max: 5 }, cardMax: 6, questions: Q },
+  { id: 'a33', world: 6, title: 'מספרים עד 9', type: 'digitFind', range: { min: 3, max: 9 }, cardMax: 10, questions: Q },
+  { id: 'a34', world: 6, title: 'כמה זה? בחרי מספר', type: 'count', pool: 'garden', range: { min: 2, max: 5 }, layout: 'row', cardMax: 6, digitsOnly: true, questions: Q },
+  { id: 'a35', world: 6, title: 'מצאי כמה שצריך', type: 'digitToQty', pool: 'farm', range: { min: 2, max: 5 }, questions: Q },
+  { id: 'a36', world: 6, title: 'שלב הבוס! 👑', types: ['digitFind', 'digitToQty', 'count'], pool: 'zoo', range: { min: 2, max: 5 }, cardMax: 6, layout: 'row', digitsOnly: true, questions: Q },
 ];

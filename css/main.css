@@ -49,6 +49,9 @@ body[data-theme="ice"]     { background: linear-gradient(170deg, #d8f0fb 0%, #8a
 body[data-theme="crystal"] { background: linear-gradient(170deg, #e8c8f5 0%, #b07fd8 55%, #6a3f9e 100%); }
 body[data-theme="story"]   { background: linear-gradient(170deg, #ffcf9e 0%, #e8927c 55%, #9e5a7a 100%); }
 body[data-theme="palace"]  { background: linear-gradient(170deg, #c8a8f5 0%, #8a5fd8 55%, #4a2f8a 100%); }
+body[data-theme="rainbow"] { background: linear-gradient(170deg, #ff9ec4 0%, #ffd86f 35%, #a0e8af 70%, #7ec8ff 100%); }
+body[data-theme="shapes"]  { background: linear-gradient(170deg, #c3c8ff 0%, #8f9fe8 55%, #5f6fd0 100%); }
+body[data-theme="numbers"] { background: linear-gradient(170deg, #ffd6a0 0%, #f5a86c 55%, #e87f9e 100%); }
 body[data-theme="space"] { color: #f0ecff; }
 
 /* רקעים מהחנות — גוברים על ערכת העולם (מוגדרים אחרי ערכות הנושא) */
@@ -479,6 +482,34 @@ button {
   border: 2px solid #e8a13d;
 }
 .answer-card.yesno { font-size: 3rem; min-width: 110px; }
+.answer-card .big-emoji { font-size: 3rem; line-height: 1; }
+
+/* רצף (עולם הרצפים) */
+.seq-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: rgba(255,255,255,0.92);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 18px;
+  max-width: 88vw;
+}
+.seq-row .seq-item { font-size: 2.6rem; line-height: 1.1; }
+.seq-row .seq-q { color: var(--purple); font-weight: 900; }
+
+/* דוגמה גדולה (צורה / ספרה) */
+.sample-box {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 30px;
+  color: var(--text);
+}
+.sample-box .big-emoji.big { font-size: 4.6rem; }
+.sample-box .big-digit.huge { font-size: 4.6rem; font-weight: 900; color: var(--purple-dark); }
 
 /* קבוצות לבחירה (איפה יש יותר) */
 .pick-groups {

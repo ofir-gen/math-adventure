@@ -117,17 +117,20 @@ for (const level of alinLevels) {
     try {
       if (!q.tts) throw 'אין טקסט הקראה';
       if (q.mode === 'cards') {
-        if (q.cards.counts.length !== 3) throw `מספר כרטיסים: ${q.cards.counts.length}`;
-        if (new Set(q.cards.counts).size !== 3) throw `כרטיסים כפולים: ${q.cards.counts}`;
-        if (q.cards.correctIndex < 0 || q.cards.correctIndex > 2) throw 'אינדקס נכון שגוי';
-        if (q.cards.counts.some(c => c < 0)) throw `כמות שלילית: ${q.cards.counts}`;
-        if (q.cards.counts.some(c => c > 12)) throw `כמות גדולה מדי: ${q.cards.counts}`;
+        const kind = q.cards.kind || 'count';
+        const list = kind === 'emoji' ? q.cards.emojis : kind === 'digit' ? q.cards.digits : q.cards.counts;
+        if (!Array.isArray(list) || list.length < 3 || list.length > 4) throw `מספר כרטיסים: ${list && list.length}`;
+        if (kind !== 'emoji' && new Set(list).size !== list.length) throw `כרטיסים כפולים: ${list}`;
+        if (q.cards.correctIndex < 0 || q.cards.correctIndex >= list.length) throw 'אינדקס נכון שגוי';
+        if (list.some(c => c === undefined || c === null)) throw `כרטיס ריק: ${list}`;
+        if (kind !== 'emoji' && list.some(c => c < 0 || c > 12)) throw `מספר לא תקין: ${list}`;
       } else if (q.mode === 'tap') {
         if (q.target >= q.total) throw `יעד ${q.target} >= סהכ ${q.total}`;
         if (q.total > 9) throw `יותר מדי עצמים: ${q.total}`;
       } else if (q.mode === 'pickGroup') {
-        if (q.groups[0] === q.groups[1]) throw `קבוצות שוות: ${q.groups}`;
-        if (q.correctIndex !== 0 && q.correctIndex !== 1) throw 'אינדקס שגוי';
+        if (q.groups.length < 2) throw `מעט קבוצות: ${q.groups}`;
+        if (new Set(q.groups).size !== q.groups.length) throw `קבוצות כפולות: ${q.groups}`;
+        if (q.correctIndex < 0 || q.correctIndex >= q.groups.length) throw `אינדקס שגוי: ${q.correctIndex}`;
       } else if (q.mode === 'yesNo') {
         const [g1, g2] = q.groupsDisplay;
         if ((g1.count === g2.count) !== q.answer) throw `תשובה לא תואמת: ${g1.count},${g2.count} → ${q.answer}`;
