@@ -375,9 +375,10 @@ export function exercise(container, ctx, { levelId }) {
     if (result.stageUp && updated.character) {
       const c = CHARACTERS.find(ch => ch.type === updated.character.type);
       const f = c?.g === 'f';
+      const dn = updated.character?.name || c?.name || '';
       const grow = el('div', 'reward-pop');
       grow.innerHTML = `${profileCharSVG(updated, result.stageUp, 90)}
-        <span>${c?.name || ''} ${f ? 'גדלה! עכשיו היא' : 'גדל! עכשיו הוא'} ${stageName(result.stageUp, c?.g)}</span>`;
+        <span>${dn} ${f ? 'גדלה! עכשיו היא' : 'גדל! עכשיו הוא'} ${stageName(result.stageUp, c?.g)}</span>`;
       res.appendChild(grow);
       setTimeout(() => { sfx.fanfare(); confetti(); }, 800);
     }

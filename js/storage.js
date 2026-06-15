@@ -89,6 +89,14 @@ export function setCharacter(profileId, type, { grantOwnership = false } = {}) {
   save();
 }
 
+// שם אישי לדמות (ניתן ע"י הילדה). נשמר על הדמות הנוכחית.
+export function setCharacterName(profileId, name) {
+  const p = data.profiles[profileId];
+  if (!p.character) return;
+  p.character.name = (name || '').trim().slice(0, 14) || undefined;
+  save();
+}
+
 // קניית דמות: מטבעות יורדים, הדמות נרשמת בבעלות ונכנסת לפעולה מיד
 export function buyCharacter(profileId, itemId, price, type) {
   const p = data.profiles[profileId];
