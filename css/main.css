@@ -547,6 +547,13 @@ button {
 }
 .sample-box .big-emoji.big { font-size: 4.6rem; }
 .sample-box .big-digit.huge { font-size: 4.6rem; font-weight: 900; color: var(--purple-dark); }
+.sample-box .big-word { font-size: 3.4rem; font-weight: 800; color: var(--purple-dark); }
+
+/* כרטיס מילה (עברית) */
+.answer-card.word-card { min-width: 120px; padding: 14px 18px; }
+.answer-card .word-text { font-size: 2rem; font-weight: 800; color: var(--purple-dark); }
+/* אותיות בכרטיסי emoji גדולות וברורות */
+.answer-card .big-emoji { font-weight: 800; }
 
 /* קבוצות לבחירה (איפה יש יותר) */
 .pick-groups {

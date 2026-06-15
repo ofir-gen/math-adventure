@@ -155,12 +155,16 @@ export function exercise(container, ctx, { levelId }) {
     const list = kind === 'emoji' ? q.cards.emojis
       : kind === 'digit' ? q.cards.digits
       : kind === 'emojiSize' ? q.cards.sizes
+      : kind === 'word' ? q.cards.words
       : q.cards.counts;
     list.forEach((val, i) => {
       let card;
       if (kind === 'emoji') {
         card = el('button', 'answer-card');
         card.innerHTML = `<span class="big-emoji">${val}</span>`;
+      } else if (kind === 'word') {
+        card = el('button', 'answer-card word-card');
+        card.innerHTML = `<span class="word-text">${val}</span>`;
       } else if (kind === 'emojiSize') {
         card = el('button', 'answer-card size-card');
         card.innerHTML = `<span class="big-emoji" style="font-size:${(val * 1.8).toFixed(2)}rem">${q.cards.emoji}</span>`;
@@ -256,6 +260,11 @@ export function exercise(container, ctx, { levelId }) {
     if (display.bigEmoji) {
       const w = el('div', 'sample-box');
       w.innerHTML = `<span class="big-emoji big">${display.bigEmoji}</span>`;
+      return w;
+    }
+    if (display.bigWord) {
+      const w = el('div', 'sample-box');
+      w.innerHTML = `<span class="big-word">${display.bigWord}</span>`;
       return w;
     }
     if (display.bigDigit !== undefined) {

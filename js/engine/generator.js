@@ -239,6 +239,39 @@ const SHAPES = [
 const SIZE_EMOJIS = ['🎈', '⚽', '⭐', '🍎', '🌸', '🔵', '🦋', '🐢'];
 const SIZE_SCALES = [0.85, 1.35, 2.0, 2.7];
 
+// ===== עברית: אותיות ומילים =====
+const HEB_LETTERS = [
+  { c: 'א', n: 'אָלֶף' }, { c: 'ב', n: 'בֵּית' }, { c: 'ג', n: 'גִּימֶל' }, { c: 'ד', n: 'דָּלֶת' },
+  { c: 'ה', n: 'הֵא' }, { c: 'ו', n: 'וָו' }, { c: 'ז', n: 'זַיִן' }, { c: 'ח', n: 'חֵית' },
+  { c: 'ט', n: 'טֵית' }, { c: 'י', n: 'יוֹד' }, { c: 'כ', n: 'כָּף' }, { c: 'ל', n: 'לָמֶד' },
+  { c: 'מ', n: 'מֵם' }, { c: 'נ', n: 'נוּן' }, { c: 'ס', n: 'סָמֶךְ' }, { c: 'ע', n: 'עַיִן' },
+  { c: 'פ', n: 'פֵּא' }, { c: 'צ', n: 'צָדִי' }, { c: 'ק', n: 'קוֹף' }, { c: 'ר', n: 'רֵישׁ' },
+  { c: 'ש', n: 'שִׁין' }, { c: 'ת', n: 'תָּו' },
+];
+// מילים מנוקדות עם תמונה; f/l = אות פותחת/סוגרת (לא אות סופית — לטובת התרגיל)
+const HEB_WORDS = [
+  { w: 'כֶּלֶב', e: '🐶', f: 'כ', l: 'ב' }, { w: 'חָתוּל', e: '🐱', f: 'ח', l: 'ל' },
+  { w: 'פִּיל', e: '🐘', f: 'פ', l: 'ל' }, { w: 'אַרְיֵה', e: '🦁', f: 'א', l: 'ה' },
+  { w: 'דֹּב', e: '🐻', f: 'ד', l: 'ב' }, { w: 'דָּג', e: '🐟', f: 'ד', l: 'ג' },
+  { w: 'סוּס', e: '🐴', f: 'ס', l: 'ס' }, { w: 'תַּפּוּחַ', e: '🍎', f: 'ת', l: 'ח' },
+  { w: 'בַּיִת', e: '🏠', f: 'ב', l: 'ת' }, { w: 'כּוֹכָב', e: '⭐', f: 'כ', l: 'ב' },
+  { w: 'פֶּרַח', e: '🌸', f: 'פ', l: 'ח' }, { w: 'עוּגָה', e: '🍰', f: 'ע', l: 'ה' },
+  { w: 'סֵפֶר', e: '📖', f: 'ס', l: 'ר' }, { w: 'כַּדּוּר', e: '⚽', f: 'כ', l: 'ר' },
+  { w: 'שֶׁמֶשׁ', e: '☀️', f: 'ש', l: 'ש' }, { w: 'לֵב', e: '❤️', f: 'ל', l: 'ב' },
+  { w: 'יָד', e: '✋', f: 'י', l: 'ד' }, { w: 'גְּלִידָה', e: '🍦', f: 'ג', l: 'ה' },
+  { w: 'רַכֶּבֶת', e: '🚂', f: 'ר', l: 'ת' }, { w: 'מְכוֹנִית', e: '🚗', f: 'מ', l: 'ת' },
+];
+
+function distinctLetters(correct, n) {
+  const set = new Set([correct]);
+  let guard = 0;
+  while (set.size < n && guard++ < 200) {
+    const d = pick(HEB_LETTERS).c;
+    if (d !== correct) set.add(d);
+  }
+  return shuffle([...set]);
+}
+
 function makeVisual(level) {
   const type = level.types ? pick(level.types) : level.type;
   // עולמות ללא pool (רצפים/צורות/מספרים-זיהוי) — לא טוענים מאגר חיות
@@ -496,6 +529,95 @@ function makeVisual(level) {
         tts: big ? 'גְּעִי בַּגָּדוֹל בְּיוֹתֵר' : 'גְּעִי בַּקָּטָן בְּיוֹתֵר',
         cards: { kind: 'emojiSize', emoji, sizes, correctIndex: sizes.indexOf(target) },
         key: `sz:${big}:${sizes.join(',')}`,
+      };
+    }
+
+    // ===== עברית: זיהוי אותיות (אלין) =====
+    case 'letterFind': {
+      const sub = HEB_LETTERS.slice(0, level.letterCount || HEB_LETTERS.length);
+      const target = pick(sub);
+      const set = new Set([target.c]);
+      let guard = 0;
+      while (set.size < 3 && guard++ < 200) {
+        const d = pick(sub.length >= 3 ? sub : HEB_LETTERS).c;
+        if (d !== target.c) set.add(d);
+      }
+      const opts = shuffle([...set]);
+      return {
+        mode: 'cards',
+        prompt: 'איזו אות שמעת?',
+        tts: `גְּעִי בָּאוֹת ${target.n}`,
+        cards: { kind: 'emoji', emojis: opts, correctIndex: opts.indexOf(target.c) },
+        key: `lf:${target.c}`,
+      };
+    }
+
+    // ===== עברית: סדר הא״ב (אלין) =====
+    case 'abcNext': {
+      const k = 3;
+      const start = ri(0, HEB_LETTERS.length - 1 - k);
+      const seq = HEB_LETTERS.slice(start, start + k).map(x => x.c);
+      const answer = HEB_LETTERS[start + k].c;
+      const dset = new Set();
+      let guard = 0;
+      while (dset.size < 2 && guard++ < 200) {
+        const d = pick(HEB_LETTERS).c;
+        if (d !== answer && !seq.includes(d)) dset.add(d);
+      }
+      const opts = shuffle([answer, ...dset]);
+      return {
+        mode: 'cards',
+        prompt: 'איזו אות באה אחר כך?',
+        tts: 'אֵיזוֹ אוֹת בָּאָה אַחַר כָּךְ?',
+        display: { sequence: seq, next: true },
+        cards: { kind: 'emoji', emojis: opts, correctIndex: opts.indexOf(answer) },
+        key: `abc:${start}`,
+      };
+    }
+
+    // ===== עברית: קריאת מילים (נויה) =====
+    case 'wordToPic': {
+      const target = pick(HEB_WORDS);
+      const others = pickN(HEB_WORDS.filter(w => w.e !== target.e), 2);
+      const opts = shuffle([target, ...others]);
+      return {
+        mode: 'cards',
+        prompt: 'קראי ובחרי את התמונה',
+        tts: target.w,
+        display: { bigWord: target.w },
+        cards: { kind: 'emoji', emojis: opts.map(w => w.e), correctIndex: opts.indexOf(target) },
+        key: `w2p:${target.w}`,
+      };
+    }
+
+    case 'picToWord': {
+      const target = pick(HEB_WORDS);
+      const others = pickN(HEB_WORDS.filter(w => w.w !== target.w), 2);
+      const opts = shuffle([target, ...others]);
+      return {
+        mode: 'cards',
+        prompt: 'איזו מילה מתאימה?',
+        tts: 'אֵיזוֹ מִילָה מַתְאִימָה לַתְּמוּנָה?',
+        display: { bigEmoji: target.e },
+        cards: { kind: 'word', words: opts.map(w => w.w), correctIndex: opts.indexOf(target) },
+        key: `p2w:${target.w}`,
+      };
+    }
+
+    // ===== עברית: אות פותחת/סוגרת (נויה) =====
+    case 'firstLetter':
+    case 'lastLetter': {
+      const first = type === 'firstLetter';
+      const target = pick(HEB_WORDS);
+      const correct = first ? target.f : target.l;
+      const opts = distinctLetters(correct, 3);
+      return {
+        mode: 'cards',
+        prompt: first ? 'באיזו אות מתחילה המילה?' : 'באיזו אות מסתיימת המילה?',
+        tts: first ? 'בְּאֵיזוֹ אוֹת מַתְחִילָה הַמִּילָה?' : 'בְּאֵיזוֹ אוֹת מִסְתַּיֶּמֶת הַמִּילָה?',
+        display: { bigWord: target.w },
+        cards: { kind: 'emoji', emojis: opts, correctIndex: opts.indexOf(correct) },
+        key: `${first ? 'fl' : 'll'}:${target.w}`,
       };
     }
   }
