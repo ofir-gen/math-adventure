@@ -202,6 +202,15 @@ function headItem(id) {
     case 'hd_halo': return `
       <ellipse cx="50" cy="14" rx="14" ry="4.5" fill="none" stroke="#ffd54a" stroke-width="3"/>
       <ellipse cx="50" cy="14" rx="14" ry="4.5" fill="none" stroke="#fff" stroke-width="1" opacity="0.7"/>`;
+    case 'hd_shell': return `
+      <path d="M36 38 Q50 30 64 38" stroke="#f7a8c8" stroke-width="2.5" fill="none"/>
+      <path d="M43 34 Q50 21 57 34 Q50 31 43 34 Z" fill="#f78cc0"/>
+      <path d="M47.5 32 L50 23 M50 23 L52.5 32" stroke="#e06ba0" stroke-width="1"/>
+      <circle cx="41" cy="35" r="1.7" fill="#fff"/><circle cx="59" cy="35" r="1.7" fill="#fff"/>`;
+    case 'hd_helmet': return `
+      <circle cx="50" cy="58" r="34" fill="#bfe3f5" opacity="0.3" stroke="#9fd0e8" stroke-width="2.5"/>
+      <rect x="48" y="19" width="4" height="8" fill="#b0b8c0"/>
+      <circle cx="50" cy="17" r="3" fill="#ffd54a"/>`;
     default: return '';
   }
 }
@@ -217,6 +226,9 @@ function eyesItem(id) {
     const heart = x => `<path d="M${x} 64 L${x - 6} 58 Q${x - 6} 53 ${x - 3} 54.5 Q${x} 55.5 ${x} 58 Q${x} 55.5 ${x + 3} 54.5 Q${x + 6} 53 ${x + 6} 58 Z" fill="#f06ba8" opacity="0.92"/>`;
     return heart(41) + heart(59) + `<line x1="46" y1="58" x2="54" y2="58" stroke="#f06ba8" stroke-width="2"/>`;
   }
+  if (id === 'ey_mask') return `
+    <path d="M28 55 Q50 49 72 55 Q72 60 67 61 Q59 57 50 57 Q41 57 33 61 Q28 60 28 55 Z" fill="#e23b3b"/>
+    <path d="M50 49 L50 44" stroke="#e23b3b" stroke-width="2"/>`;
   return '';
 }
 
@@ -243,5 +255,17 @@ function backItem(id) {
     <ellipse cx="78" cy="52" rx="14" ry="21" fill="#f78c8c" opacity="0.8" transform="rotate(-20 78 52)"/>
     <ellipse cx="76" cy="54" rx="10" ry="16" fill="#ffd54a" opacity="0.8" transform="rotate(-20 76 54)"/>
     <ellipse cx="74" cy="56" rx="6" ry="11" fill="#8fe3a8" opacity="0.8" transform="rotate(-20 74 56)"/>`;
+  if (id === 'bk_cape') return `
+    <path d="M32 50 Q50 45 68 50 L82 98 Q50 90 18 98 Z" fill="#e23b3b" opacity="0.95"/>
+    <path d="M32 50 Q50 45 68 50 L64 56 Q50 52 36 56 Z" fill="#b8252f"/>`;
+  if (id === 'bk_fins') return `
+    <path d="M16 66 Q3 62 7 50 Q17 58 23 65 Z" fill="#5fd8c4" opacity="0.92"/>
+    <path d="M84 66 Q97 62 93 50 Q83 58 77 65 Z" fill="#5fd8c4" opacity="0.92"/>
+    <path d="M50 94 Q39 108 50 110 Q61 108 50 94 Z" fill="#4fc9b6"/>`;
+  if (id === 'bk_jetpack') return `
+    <rect x="20" y="56" width="12" height="26" rx="5" fill="#9aa6b2"/>
+    <rect x="68" y="56" width="12" height="26" rx="5" fill="#9aa6b2"/>
+    <path d="M22 82 Q26 95 30 82 Z" fill="#ff8c3a"/>
+    <path d="M70 82 Q74 95 78 82 Z" fill="#ff8c3a"/>`;
   return '';
 }

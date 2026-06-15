@@ -138,6 +138,23 @@ export function buyItem(profileId, itemId, price, slot) {
   return true;
 }
 
+// קניית ערכת תלבושת: מעניק את כל החלקים ומלביש אותם יחד.
+// מחזיר 'bought' | 'equipped' | false (אין מספיק מטבעות)
+export function buySet(profileId, set) {
+  const p = data.profiles[profileId];
+  const allOwned = Object.values(set.equip).every(id => p.owned.includes(id));
+  let result = 'equipped';
+  if (!allOwned) {
+    if (p.coins < set.price) return false;
+    p.coins -= set.price;
+    for (const id of Object.values(set.equip)) if (!p.owned.includes(id)) p.owned.push(id);
+    result = 'bought';
+  }
+  for (const [slot, id] of Object.entries(set.equip)) p.equipped[slot] = id;
+  save();
+  return result;
+}
+
 // ביצת הפתעה: תשלום ופריט נפרדים
 export function spendCoins(profileId, amount) {
   const p = data.profiles[profileId];

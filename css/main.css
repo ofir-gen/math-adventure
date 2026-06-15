@@ -888,6 +888,33 @@ button {
 .shop-item.worn { border-color: var(--gold); }
 .shop-item.shake { animation: shake 0.4s; }
 .egg-card .sicon { font-size: 3rem; }
+.collection-btn { align-self: center; font-size: 1.15rem; }
+.set-card svg { margin-bottom: -2px; }
+
+/* ספר אוסף */
+.collection-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-bottom: 18px; }
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 10px;
+  padding: 4px 2px 10px;
+}
+.coll-cell {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 84px;
+  justify-content: center;
+}
+.coll-cell.locked { background: rgba(255,255,255,0.4); box-shadow: none; }
+.coll-emoji { font-size: 2.2rem; }
+.coll-q { font-size: 2rem; opacity: 0.5; }
+.coll-name { font-size: 0.78rem; font-weight: 700; text-align: center; line-height: 1.15; }
 
 .egg-overlay {
   position: fixed;

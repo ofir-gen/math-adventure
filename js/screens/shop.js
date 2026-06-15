@@ -3,7 +3,7 @@ import { el, topbarEl } from '../ui/components.js';
 import { profileCharSVG, characterSVG } from '../ui/character-svg.js';
 import { flagSVG } from '../ui/flags.js';
 import { characterStage, charByType } from '../engine/rewards.js';
-import { shopItems, itemById, hatchEgg, eggPool, EGG_PRICE } from '../engine/shopCatalog.js';
+import { shopItems, itemById, hatchEgg, eggPool, EGG_PRICE, SETS, setOwned, setEquipped } from '../engine/shopCatalog.js';
 import { confetti } from '../ui/confetti.js';
 import * as storage from '../storage.js';
 import { speak, sfx } from '../audio.js';
@@ -31,6 +31,17 @@ export function shop(container, ctx, params = {}) {
     preview.innerHTML = profileCharSVG(profile, characterStage(profile.totals.stars), 130);
     scroll.appendChild(preview);
 
+    // ספר אוסף
+    const bookBtn = el('button', 'btn collection-btn', '📚 ספר האוסף שלי');
+    bookBtn.addEventListener('click', () => { sfx.tap(); ctx.navigate('collection', { fromWorld: params.fromWorld }); });
+    scroll.appendChild(bookBtn);
+
+    // ערכות תלבושת
+    scroll.appendChild(el('div', 'section-title', 'ערכות תלבושת 🎭'));
+    const setGrid = el('div', 'shop-grid');
+    for (const set of SETS) setGrid.appendChild(setCard(set, profile));
+    scroll.appendChild(setGrid);
+
     // ביצת הפתעה
     scroll.appendChild(el('div', 'section-title', 'ביצת הפתעה'));
     const pool = eggPool(profile);
@@ -51,10 +62,10 @@ export function shop(container, ctx, params = {}) {
     for (const item of shopItems().filter(i => i.slot === 'char')) charGrid.appendChild(charCard(item, profile));
     scroll.appendChild(charGrid);
 
-    // אביזרים
+    // אביזרים (לא כולל חלקי-ערכות — אלה נקנים כערכה)
     scroll.appendChild(el('div', 'section-title', 'תחפושות לדמות'));
     const accGrid = el('div', 'shop-grid');
-    for (const item of shopItems().filter(i => !['color', 'bg', 'char', 'flag'].includes(i.slot))) accGrid.appendChild(itemCard(item, profile));
+    for (const item of shopItems().filter(i => !['color', 'bg', 'char', 'flag'].includes(i.slot) && !i.setPiece)) accGrid.appendChild(itemCard(item, profile));
     scroll.appendChild(accGrid);
 
     // צבעים
@@ -140,6 +151,34 @@ export function shop(container, ctx, params = {}) {
         confetti();
         speak(`${c.tn} ${c.g === 'f' ? 'מִצְטָרֶפֶת' : 'מִצְטָרֵף'} אֵלַיִךְ לְהַרְפַּתְקָה!`);
         render();
+      } else {
+        sfx.wrong();
+        speak('עוֹד אֵין מַסְפִּיק מַטְבְּעוֹת. בּוֹאִי נְשַׂחֵק וְנַרְוִיחַ!');
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 450);
+      }
+    });
+    return card;
+  }
+
+  // כרטיס ערכת תלבושת: תצוגת הדמות לבושה בערכה + קנייה/הלבשה
+  function setCard(set, profile) {
+    const owned = setOwned(profile, set);
+    const worn = setEquipped(profile, set);
+    const card = el('button', `shop-item set-card ${owned ? 'owned' : ''} ${worn ? 'worn' : ''}`);
+    // תצוגה: הדמות הנוכחית עם הערכה לבושה
+    const previewProfile = { ...profile, equipped: { ...profile.equipped, ...set.equip } };
+    const state = worn ? '✓ לבושה' : owned ? 'ללבוש' : `🪙 ${set.price}`;
+    card.innerHTML = `${profileCharSVG(previewProfile, 3, 70)}<span class="sname">${set.icon} ${set.name}</span><span class="sprice">${state}</span>`;
+    card.addEventListener('click', () => {
+      if (worn) return;
+      const res = storage.buySet(ctx.state.profileId, set);
+      if (res === 'bought') {
+        sfx.fanfare(); confetti();
+        speak(`קָנִית אֶת תִּלְבֹּשֶׁת הַ${set.tn}!`);
+        render();
+      } else if (res === 'equipped') {
+        sfx.tap(); speak(`תִּלְבֹּשֶׁת הַ${set.tn}`); render();
       } else {
         sfx.wrong();
         speak('עוֹד אֵין מַסְפִּיק מַטְבְּעוֹת. בּוֹאִי נְשַׂחֵק וְנַרְוִיחַ!');

@@ -8,10 +8,11 @@ import { character } from './screens/character.js';
 import { shop } from './screens/shop.js';
 import { parent } from './screens/parent.js';
 import { memory } from './screens/memory.js';
+import { collection } from './screens/collection.js';
 import { unlock } from './audio.js';
 import { getProfile } from './storage.js';
 
-const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent, memory };
+const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent, memory, collection };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },
