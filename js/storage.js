@@ -23,6 +23,7 @@ function emptyProfile(name, ttsName, curriculum) {
     coins: 0,        // מטבעות לחנות — הכוכבים לעולם לא יורדים
     owned: [],       // פריטי חנות שנקנו
     equipped: {},    // slot -> itemId (מה הדמות לובשת)
+    room: {},        // spot -> itemId (רהיטים בחדר)
     totals: { stars: 0, correct: 0, bestStreak: 0 },
   };
 }
@@ -50,6 +51,7 @@ function load() {
       }
       if (!Array.isArray(base.profiles[id].owned)) base.profiles[id].owned = [];
       if (typeof base.profiles[id].equipped !== 'object' || !base.profiles[id].equipped) base.profiles[id].equipped = {};
+      if (typeof base.profiles[id].room !== 'object' || !base.profiles[id].room) base.profiles[id].room = {};
       // מיגרציה: מדבקות ספציפיות-לנושא קיבלו קידומת קוריקולום (כדי לא להתנגש בין נושאים)
       const mathCur = base.profiles[id].curriculum;
       base.profiles[id].stickers = base.profiles[id].stickers.map(s =>
@@ -86,6 +88,35 @@ export function setCharacter(profileId, type, { grantOwnership = false } = {}) {
   p.character = { type };
   // דמות הפתיחה החינמית נרשמת בבעלות; החלפה רגילה לא מעניקה בעלות
   if (grantOwnership && !p.owned.includes('ch_' + type)) p.owned.push('ch_' + type);
+  save();
+}
+
+// קניית רהיט לחדר: מטבעות יורדים, נוסף לבעלות (ההצבה נעשית במסך החדר)
+export function buyDecor(profileId, itemId, price) {
+  const p = data.profiles[profileId];
+  if (p.coins < price || p.owned.includes(itemId)) return false;
+  p.coins -= price;
+  p.owned.push(itemId);
+  save();
+  return true;
+}
+
+// הצבת/הסרת רהיט בחריץ בחדר
+export function setRoomItem(profileId, spot, itemId) {
+  const p = data.profiles[profileId];
+  if (itemId === null) delete p.room[spot];
+  else p.room[spot] = itemId;
+  save();
+}
+
+// מתנה יומית: מחזיר true אם מגיעה היום (לפי תאריך אחרון)
+export function dailyGiftAvailable(profileId, todayStr) {
+  return data.profiles[profileId].lastGift !== todayStr;
+}
+export function claimDailyGift(profileId, todayStr, coins) {
+  const p = data.profiles[profileId];
+  p.lastGift = todayStr;
+  p.coins += coins;
   save();
 }
 

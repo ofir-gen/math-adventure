@@ -4,6 +4,7 @@ import { characterSVG, profileCharSVG } from '../ui/character-svg.js';
 import { confetti } from '../ui/confetti.js';
 import { generateRound } from '../engine/generator.js';
 import { calcStars, applyRound, characterStage, stageName, CHARACTERS } from '../engine/rewards.js';
+import { evolveOverlay } from '../ui/celebrate.js';
 import { getCurriculum, levelById } from '../curriculum/index.js';
 import * as storage from '../storage.js';
 import { speak, sfx } from '../audio.js';
@@ -373,14 +374,8 @@ export function exercise(container, ctx, { levelId }) {
 
     // הדמות גדלה!
     if (result.stageUp && updated.character) {
-      const c = CHARACTERS.find(ch => ch.type === updated.character.type);
-      const f = c?.g === 'f';
-      const dn = updated.character?.name || c?.name || '';
-      const grow = el('div', 'reward-pop');
-      grow.innerHTML = `${profileCharSVG(updated, result.stageUp, 90)}
-        <span>${dn} ${f ? 'גדלה! עכשיו היא' : 'גדל! עכשיו הוא'} ${stageName(result.stageUp, c?.g)}</span>`;
-      res.appendChild(grow);
-      setTimeout(() => { sfx.fanfare(); confetti(); }, 800);
+      // חגיגת התפתחות מלאת-מסך (אחרי שהתוצאות מוצגות)
+      setTimeout(() => evolveOverlay(updated, result.stageUp), 1100);
     }
 
     const actions = el('div', 'actions');

@@ -1,5 +1,5 @@
 // כוכבים, פתיחת שלבים, מדבקות ושלבי גדילה של הדמות
-import { getCurriculum } from '../curriculum/index.js';
+import { getCurriculum, curricula } from '../curriculum/index.js';
 import * as storage from '../storage.js';
 
 // ===== כוכבים =====
@@ -116,6 +116,15 @@ export function stickerCatalog(curriculumId) {
   });
 
   return list;
+}
+
+// אימוג'י של כל המדבקות שהושגו (מכל הנושאים) — למדף הגביעים בחדר
+export function earnedTrophyEmojis(profile) {
+  const map = {};
+  for (const curId of Object.keys(curricula)) {
+    for (const s of stickerCatalog(curId)) map[s.id] = s.emoji;
+  }
+  return profile.stickers.map(id => map[id]).filter(Boolean);
 }
 
 // ===== החלת תוצאות סבב: עדכון אחסון + איסוף תגמולים חדשים =====

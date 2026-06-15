@@ -51,6 +51,9 @@ export function character(container, ctx, params = {}) {
 
     // ===== שם הדמות =====
     const nameRow = el('div', 'name-row');
+    const roomBtn = el('button', 'btn', '🏠 החדר שלי');
+    roomBtn.addEventListener('click', () => { sfx.tap(); ctx.navigate('room', { fromWorld: params.fromWorld }); });
+    nameRow.appendChild(roomBtn);
     const renameBtn = el('button', 'btn', `✏️ קראי לי בשם`);
     renameBtn.addEventListener('click', () => {
       const cur = profile.character?.name || '';

@@ -3,7 +3,7 @@ import { el, topbarEl } from '../ui/components.js';
 import { profileCharSVG, characterSVG } from '../ui/character-svg.js';
 import { flagSVG } from '../ui/flags.js';
 import { characterStage, charByType } from '../engine/rewards.js';
-import { shopItems, itemById, hatchEgg, eggPool, EGG_PRICE, SETS, setOwned, setEquipped } from '../engine/shopCatalog.js';
+import { shopItems, itemById, hatchEgg, eggPool, EGG_PRICE, SETS, setOwned, setEquipped, decorItems, rarityOf, RARITY_LABEL } from '../engine/shopCatalog.js';
 import { confetti } from '../ui/confetti.js';
 import * as storage from '../storage.js';
 import { speak, sfx } from '../audio.js';
@@ -79,6 +79,12 @@ export function shop(container, ctx, params = {}) {
     const bgGrid = el('div', 'shop-grid');
     for (const item of shopItems().filter(i => i.slot === 'bg')) bgGrid.appendChild(itemCard(item, profile));
     scroll.appendChild(bgGrid);
+
+    // רהיטים לחדר
+    scroll.appendChild(el('div', 'section-title', 'רהיטים לחדר 🏠'));
+    const decorGrid = el('div', 'shop-grid');
+    for (const item of decorItems()) decorGrid.appendChild(decorCard(item, profile));
+    scroll.appendChild(decorGrid);
 
     // דגלי מדינות — הדמות מחזיקה ביד
     scroll.appendChild(el('div', 'section-title', 'דגלי מדינות 🚩'));
@@ -189,6 +195,27 @@ export function shop(container, ctx, params = {}) {
     return card;
   }
 
+  // כרטיס רהיט: קנייה (ההצבה בחדר). שמירה על מלאי — "יש לך" לאחר קנייה
+  function decorCard(item, profile) {
+    const owned = profile.owned.includes(item.id);
+    const card = el('button', `shop-item ${owned ? 'owned' : ''}`);
+    card.innerHTML = `<span class="sicon">${item.icon}</span><span class="sname">${item.name}</span><span class="sprice">${owned ? '✓ יש לך' : `🪙 ${item.price}`}</span>`;
+    card.addEventListener('click', () => {
+      if (owned) { speak('יֵשׁ לָךְ! עַצְבִי בַּחֶדֶר'); return; }
+      if (storage.buyDecor(ctx.state.profileId, item.id, item.price)) {
+        sfx.fanfare(); confetti();
+        speak(`קָנִית ${item.tn}! עַכְשָׁו אֶפְשָׁר לְעַצֵּב בַּחֶדֶר`);
+        render();
+      } else {
+        sfx.wrong();
+        speak('עוֹד אֵין מַסְפִּיק מַטְבְּעוֹת. בּוֹאִי נְשַׂחֵק וְנַרְוִיחַ!');
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 450);
+      }
+    });
+    return card;
+  }
+
   function buyEgg(eggCard) {
     if (!storage.spendCoins(ctx.state.profileId, EGG_PRICE)) {
       sfx.wrong();
@@ -201,21 +228,27 @@ export function shop(container, ctx, params = {}) {
     const item = hatchEgg(profile);
     storage.grantItem(ctx.state.profileId, item.id, item.slot);
 
-    // אנימציית בקיעה
+    // אנימציית בקיעה — עם דרגת נדירות
+    const rarity = rarityOf(item);
     const overlay = el('div', 'egg-overlay');
     overlay.innerHTML = `<div class="egg-anim">🥚</div>`;
     document.body.appendChild(overlay);
     sfx.pop();
     setTimeout(() => {
+      const isFlag = item.slot === 'flag';
+      const icon = isFlag ? flagSVG(item.id, 70, 47) : `<span class="sicon">${item.icon}</span>`;
       overlay.innerHTML = `
-        <div class="egg-reveal pop-in">
-          <span class="sicon">${item.icon}</span>
-          <span class="sname">${item.name}${item.rare ? ' ✨ נדיר!' : ''}</span>
+        <div class="egg-reveal pop-in rarity-${rarity}">
+          <span class="rarity-banner">${RARITY_LABEL[rarity]}</span>
+          ${icon}
+          <span class="sname">${item.name}</span>
         </div>`;
       sfx.fanfare();
-      confetti();
-      speak(`יָצָא ${item.tn}!${item.rare ? ' אֵיזֶה מַזָּל, זֶה פְּרִיט נָדִיר!' : ''}`);
-      setTimeout(() => { overlay.remove(); render(); }, 2200);
+      confetti(rarity === 'legendary' ? 3000 : 2000);
+      if (rarity === 'legendary') setTimeout(() => confetti(2000), 500);
+      const extra = rarity === 'legendary' ? ' אֵיזֶה מַזָּל, זֶה פְּרִיט אַגָּדִי!' : rarity === 'rare' ? ' פְּרִיט נָדִיר!' : '';
+      speak(`יָצָא ${item.tn}!${extra}`);
+      setTimeout(() => { overlay.remove(); render(); }, 2400);
     }, 1400);
   }
 }

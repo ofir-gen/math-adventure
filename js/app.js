@@ -9,10 +9,11 @@ import { shop } from './screens/shop.js';
 import { parent } from './screens/parent.js';
 import { memory } from './screens/memory.js';
 import { collection } from './screens/collection.js';
+import { room } from './screens/room.js';
 import { unlock } from './audio.js';
 import { getProfile } from './storage.js';
 
-const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent, memory, collection };
+const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent, memory, collection, room };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },

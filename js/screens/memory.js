@@ -3,6 +3,7 @@ import { el } from '../ui/components.js';
 import { profileCharSVG } from '../ui/character-svg.js';
 import { confetti } from '../ui/confetti.js';
 import { applyRound, characterStage, stageName, CHARACTERS } from '../engine/rewards.js';
+import { evolveOverlay } from '../ui/celebrate.js';
 import { getCurriculum, levelById } from '../curriculum/index.js';
 import * as storage from '../storage.js';
 import { speak, sfx } from '../audio.js';
@@ -112,13 +113,7 @@ export function memory(container, ctx, { levelId }) {
       res.appendChild(el('div', 'reward-pop', `<span class="remoji">${s.emoji}</span> מדבקה חדשה: ${s.name}`));
     }
     if (result.stageUp && updated.character) {
-      const c = CHARACTERS.find(ch => ch.type === updated.character.type);
-      const dn = updated.character?.name || c?.name || '';
-      const grow = el('div', 'reward-pop');
-      grow.innerHTML = `${profileCharSVG(updated, result.stageUp, 90)}
-        <span>${dn} ${c?.g === 'f' ? 'גדלה! עכשיו היא' : 'גדל! עכשיו הוא'} ${stageName(result.stageUp, c?.g)}</span>`;
-      res.appendChild(grow);
-      setTimeout(() => { sfx.fanfare(); confetti(); }, 800);
+      setTimeout(() => evolveOverlay(updated, result.stageUp), 1100);
     }
 
     const actions = el('div', 'actions');

@@ -61,6 +61,31 @@ export const SETS = [
 export const setOwned = (profile, set) => Object.values(set.equip).every(id => profile.owned.includes(id));
 export const setEquipped = (profile, set) => Object.entries(set.equip).every(([slot, id]) => profile.equipped[slot] === id);
 
+// רהיטים לחדר — slot 'decor', spot = מיקום בחדר (bed/plant/toy/wall)
+const DECOR_DEFS = [
+  ['bed', [['rm_bed', 'מיטה', 'מִטָּה', '🛏️'], ['rm_sofa', 'ספה', 'סַפָּה', '🛋️'], ['rm_basket', 'סלסלה', 'סַלְסִלָּה', '🧺']]],
+  ['plant', [['rm_plant', 'עציץ', 'עָצִיץ', '🪴'], ['rm_sunflower', 'חמנייה', 'חַמָּנִית', '🌻'], ['rm_cactus', 'קקטוס', 'קַקְטוּס', '🌵']]],
+  ['toy', [['rm_teddy', 'דובי', 'דֻּבִּי', '🧸'], ['rm_ball', 'כדור', 'כַּדּוּר', '⚽'], ['rm_balloons', 'בלונים', 'בַּלּוֹנִים', '🎈']]],
+  ['wall', [['rm_picture', 'תמונה', 'תְּמוּנָה', '🖼️'], ['rm_window', 'חלון', 'חַלּוֹן', '🪟'], ['rm_rainbow', 'קשת', 'קֶשֶׁת', '🌈']]],
+];
+for (const [spot, defs] of DECOR_DEFS) {
+  for (const [id, name, tn, icon] of defs) {
+    ITEMS.push({ id, slot: 'decor', spot, name, tn, icon, price: 25 });
+  }
+}
+
+export const decorItems = () => ITEMS.filter(i => i.slot === 'decor');
+export const DAILY_GIFT_COINS = 15;
+
+// דרגת נדירות לפריט — לחשיפת הביצה
+const RARE_IDS = ['bk_fairy', 'hd_tiara', 'ey_heart', 'nk_heart', 'hd_flower'];
+export function rarityOf(item) {
+  if (item.rare) return 'legendary';
+  if (RARE_IDS.includes(item.id)) return 'rare';
+  return 'common';
+}
+export const RARITY_LABEL = { common: 'פריט חדש!', rare: '✨ נדיר!', legendary: '👑 אגדי!' };
+
 // דגלי מדינות — נקנים בחנות, והדמות מחזיקה אותם ביד. 20 דגלים כולל ישראל.
 for (const f of FLAGS) ITEMS.push({ id: f.id, slot: 'flag', name: f.name, tn: f.tn, price: FLAG_PRICE });
 
@@ -78,9 +103,9 @@ export const itemById = id => ITEMS.find(i => i.id === id);
 // מה שמוצג על המדפים (בלי הנדירים)
 export const shopItems = () => ITEMS.filter(i => !i.rare);
 
-// מה יכול לצאת מביצה: כל מה שעוד אין לה — חוץ מדמויות, דגלים וחלקי-ערכות (נקנים כערכה)
+// מה יכול לצאת מביצה: כל מה שעוד אין לה — חוץ מדמויות, דגלים, רהיטים וחלקי-ערכות
 export const eggPool = profile => ITEMS.filter(i =>
-  !profile.owned.includes(i.id) && i.slot !== 'char' && i.slot !== 'flag' && !i.setPiece);
+  !profile.owned.includes(i.id) && i.slot !== 'char' && i.slot !== 'flag' && i.slot !== 'decor' && !i.setPiece);
 
 export function hatchEgg(profile) {
   const pool = eggPool(profile);
