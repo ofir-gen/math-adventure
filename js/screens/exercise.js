@@ -267,6 +267,10 @@ export function exercise(container, ctx, { levelId }) {
       w.innerHTML = `<span class="big-word">${display.bigWord}</span>`;
       return w;
     }
+    if (display.passage) {
+      // קטע קריאה / משפט להשלמה — הדגשת המקום החסר
+      return el('div', 'story-box reading-box', display.passage.replace('___', '<span class="blank">_____</span>'));
+    }
     if (display.bigDigit !== undefined) {
       const w = el('div', 'sample-box');
       w.innerHTML = `<div class="big-digit huge">${display.bigDigit}</div>`;

@@ -1,5 +1,6 @@
 ﻿// יצירת תרגילים פרוצדורלית מתוך אילוצי השלב
 import { pools } from '../curriculum/alin.js';
+import { HEB_PASSAGES, HEB_COMPLETIONS, HEB_OPPOSITES, HEB_CATEGORIES } from './hebrewContent.js';
 
 const ri = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -618,6 +619,58 @@ function makeVisual(level) {
         display: { bigWord: target.w },
         cards: { kind: 'emoji', emojis: opts, correctIndex: opts.indexOf(correct) },
         key: `${first ? 'fl' : 'll'}:${target.w}`,
+      };
+    }
+
+    // ===== עברית מתקדמת (נויה): הבנת הנקרא, השלמה, הפכים, יוצא דופן =====
+    case 'comprehension': {
+      const it = pick(HEB_PASSAGES);
+      const opts = shuffle([it.a, ...it.d]);
+      return {
+        mode: 'cards',
+        prompt: it.q,
+        tts: `${it.text} ${it.q}`,
+        display: { passage: it.text },
+        cards: { kind: 'word', words: opts, correctIndex: opts.indexOf(it.a) },
+        key: `rc:${it.q}`,
+      };
+    }
+
+    case 'completion': {
+      const it = pick(HEB_COMPLETIONS);
+      const opts = shuffle([it.a, ...it.d]);
+      return {
+        mode: 'cards',
+        prompt: 'השלימי את המשפט',
+        tts: `הַשְׁלִימִי אֶת הַמִּשְׁפָּט. ${it.s.replace('___', '...')}`,
+        display: { passage: it.s },
+        cards: { kind: 'word', words: opts, correctIndex: opts.indexOf(it.a) },
+        key: `cmp:${it.s}`,
+      };
+    }
+
+    case 'opposite': {
+      const it = pick(HEB_OPPOSITES);
+      const others = pickN(HEB_OPPOSITES.filter(x => x.o !== it.o), 2).map(x => x.o);
+      const opts = shuffle([it.o, ...others]);
+      return {
+        mode: 'cards',
+        prompt: `מה ההפך של "${it.w}"?`,
+        tts: `מָה הַהֵפֶךְ שֶׁל ${it.w}?`,
+        cards: { kind: 'word', words: opts, correctIndex: opts.indexOf(it.o) },
+        key: `opp:${it.w}`,
+      };
+    }
+
+    case 'oddWord': {
+      const it = pick(HEB_CATEGORIES);
+      const opts = shuffle([it.odd, ...it.group]);
+      return {
+        mode: 'cards',
+        prompt: 'איזו מילה לא שייכת?',
+        tts: 'אֵיזוֹ מִילָה לֹא שַׁיֶּכֶת לַקְּבוּצָה?',
+        cards: { kind: 'word', words: opts, correctIndex: opts.indexOf(it.odd) },
+        key: `odd:${it.odd}`,
       };
     }
   }
