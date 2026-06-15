@@ -1,6 +1,6 @@
 // service worker: קדם-אחסון של כל קבצי המשחק — עובד אופליין לגמרי.
 // בכל עדכון לאפליקציה יש להעלות את מספר הגרסה כאן:
-const CACHE = 'math-adventure-v13';
+const CACHE = 'math-adventure-v14';
 
 const ASSETS = [
   './',
@@ -17,6 +17,7 @@ const ASSETS = [
   './js/engine/rewards.js',
   './js/engine/shopCatalog.js',
   './js/screens/profileSelect.js',
+  './js/screens/subjectSelect.js',
   './js/screens/worldMap.js',
   './js/screens/exercise.js',
   './js/screens/prizes.js',

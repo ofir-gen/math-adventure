@@ -28,7 +28,7 @@ export function profileSelect(container, ctx) {
       if (!p.character) showCharacterPick(container, ctx, id);
       else {
         ctx.state.profileId = id;
-        ctx.navigate('worldMap');
+        ctx.navigate('subjectSelect');
       }
     });
     cards.appendChild(card);
@@ -59,7 +59,7 @@ function showCharacterPick(container, ctx, profileId) {
       sfx.fanfare();
       speak(`${c.tn || c.name} ${c.g === 'f' ? 'מִצְטָרֶפֶת' : 'מִצְטָרֵף'} אֵלַיִךְ לְהַרְפַּתְקָה!`);
       ctx.state.profileId = profileId;
-      ctx.navigate('worldMap');
+      ctx.navigate('subjectSelect');
     });
     picks.appendChild(opt);
   }

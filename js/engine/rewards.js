@@ -4,9 +4,10 @@ import * as storage from '../storage.js';
 
 // ===== כוכבים =====
 // נספרות טעויות בניסיון ראשון בלבד; בלי טיימר.
+// קוריקולומים "סלחניים" (גיל הגן) מסומנים ב-meta.lenient — אי אפשר "להיכשל".
 export function calcStars(firstTryMistakes, curriculumId) {
-  if (curriculumId === 'alin') {
-    // אלין אף פעם לא "נכשלת"
+  const lenient = getCurriculum(curriculumId)?.meta?.lenient;
+  if (lenient) {
     if (firstTryMistakes <= 1) return 3;
     if (firstTryMistakes <= 3) return 2;
     return 1;
@@ -17,18 +18,18 @@ export function calcStars(firstTryMistakes, curriculumId) {
   return 0; // "כמעט!" — אפשר מיד לנסות שוב
 }
 
-// ===== פתיחת שלבים =====
-export function isLevelUnlocked(profile, level) {
-  const levels = getCurriculum(profile.curriculum).levels;
+// ===== פתיחת שלבים (לפי הקוריקולום של הנושא הנוכחי) =====
+export function isLevelUnlocked(profile, level, curriculumId) {
+  const levels = getCurriculum(curriculumId).levels;
   const idx = levels.findIndex(l => l.id === level.id);
   if (idx === 0) return true;
   const prev = levels[idx - 1];
   return (profile.levels[prev.id]?.stars || 0) > 0;
 }
 
-export function isWorldUnlocked(profile, worldN) {
+export function isWorldUnlocked(profile, worldN, curriculumId) {
   if (worldN === 1) return true;
-  const levels = getCurriculum(profile.curriculum).levels.filter(l => l.world === worldN - 1);
+  const levels = getCurriculum(curriculumId).levels.filter(l => l.world === worldN - 1);
   return levels.every(l => (profile.levels[l.id]?.stars || 0) > 0);
 }
 
@@ -114,7 +115,7 @@ export function stickerCatalog(curriculumId) {
 }
 
 // ===== החלת תוצאות סבב: עדכון אחסון + איסוף תגמולים חדשים =====
-export function applyRound(profileId, levelId, stars, correctCount, bestStreakInRound) {
+export function applyRound(profileId, levelId, stars, correctCount, bestStreakInRound, curriculumId) {
   const before = storage.getProfile(profileId);
   const stageBefore = characterStage(before.totals.stars);
 
@@ -127,7 +128,7 @@ export function applyRound(profileId, levelId, stars, correctCount, bestStreakIn
   const after = storage.getProfile(profileId);
   const stageAfter = characterStage(after.totals.stars);
 
-  const catalog = stickerCatalog(after.curriculum);
+  const catalog = stickerCatalog(curriculumId || after.curriculum);
   const newStickers = catalog.filter(s => !after.stickers.includes(s.id) && s.test(after));
   if (newStickers.length) storage.addStickers(profileId, newStickers.map(s => s.id));
 

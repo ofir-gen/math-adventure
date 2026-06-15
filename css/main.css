@@ -203,6 +203,41 @@ button {
 }
 .char-option:active { transform: scale(0.93); }
 
+/* ===== מסך בחירת נושא ===== */
+.subject-screen { align-items: center; }
+.subject-avatar { display: flex; justify-content: center; padding: 6px 0; }
+.subject-q {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  padding: 4px 0 14px;
+}
+.subject-cards {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.subject-card {
+  background: var(--card);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  width: min(190px, 40vw);
+  padding: 22px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.12s;
+}
+.subject-card:active { transform: scale(0.95); }
+.subject-card .subj-icon { font-size: 3.4rem; }
+.subject-card .subj-name { font-size: 1.5rem; font-weight: 800; }
+.subject-card .subj-meta { font-size: 1.05rem; color: #8a7ab0; font-weight: 700; }
+.subject-card.soon { opacity: 0.6; }
+.subject-card.soon .subj-meta { color: #c08a3a; }
+
 /* ===== מפת עולם ===== */
 .map-screen { overflow: hidden; }
 .world-nav {

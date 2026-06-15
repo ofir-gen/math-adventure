@@ -1,5 +1,6 @@
 // נקודת הכניסה: ניתוב מסכים, שחרור קול במחווה ראשונה, רישום service worker
 import { profileSelect } from './screens/profileSelect.js';
+import { subjectSelect } from './screens/subjectSelect.js';
 import { worldMap } from './screens/worldMap.js';
 import { exercise } from './screens/exercise.js';
 import { prizes } from './screens/prizes.js';
@@ -9,7 +10,7 @@ import { parent } from './screens/parent.js';
 import { unlock } from './audio.js';
 import { getProfile } from './storage.js';
 
-const screens = { profileSelect, worldMap, exercise, prizes, character, shop, parent };
+const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },
@@ -25,7 +26,8 @@ function navigate(name, params = {}) {
 // רקע קנוי מהחנות גובר על ערכת העולם
 function applyBg(screenName) {
   const pid = ctx.state.profileId;
-  const bg = screenName !== 'profileSelect' && pid ? getProfile(pid).equipped?.bg : null;
+  const noBg = screenName === 'profileSelect' || screenName === 'subjectSelect';
+  const bg = !noBg && pid ? getProfile(pid).equipped?.bg : null;
   if (bg) document.body.dataset.bg = bg;
   else delete document.body.dataset.bg;
 }

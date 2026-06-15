@@ -15,11 +15,12 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 export function exercise(container, ctx, { levelId }) {
   const profile = storage.getProfile(ctx.state.profileId);
-  const cur = getCurriculum(profile.curriculum);
-  const level = levelById(profile.curriculum, levelId);
+  const curId = ctx.state.curriculumId || profile.curriculum;
+  const cur = getCurriculum(curId);
+  const level = levelById(curId, levelId);
   const world = cur.worlds.find(w => w.n === level.world);
   document.body.dataset.theme = world.theme;
-  const isAlin = profile.curriculum === 'alin';
+  const isAlin = !!cur.meta?.lenient; // הקראה אוטומטית בנושאים של גיל הגן
 
   const round = generateRound(level);
   const state = {
@@ -319,8 +320,8 @@ export function exercise(container, ctx, { levelId }) {
 
   // ===== מסך סיום =====
   function showResults() {
-    const stars = calcStars(state.missed, profile.curriculum);
-    const result = applyRound(ctx.state.profileId, levelId, stars, state.correct, state.bestStreak);
+    const stars = calcStars(state.missed, curId);
+    const result = applyRound(ctx.state.profileId, levelId, stars, state.correct, state.bestStreak, curId);
     const updated = storage.getProfile(ctx.state.profileId);
 
     screen.innerHTML = '';

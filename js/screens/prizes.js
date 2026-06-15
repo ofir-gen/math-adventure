@@ -6,7 +6,7 @@ import * as storage from '../storage.js';
 export function prizes(container, ctx, params = {}) {
   document.body.dataset.theme = 'home';
   const profile = storage.getProfile(ctx.state.profileId);
-  const catalog = stickerCatalog(profile.curriculum);
+  const catalog = stickerCatalog(ctx.state.curriculumId || profile.curriculum);
   const earned = new Set(profile.stickers);
 
   const screen = el('div', 'screen');

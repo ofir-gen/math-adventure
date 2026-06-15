@@ -14,9 +14,11 @@ const NODE_POS = [
 
 export function worldMap(container, ctx, params = {}) {
   const profile = storage.getProfile(ctx.state.profileId);
-  const cur = getCurriculum(profile.curriculum);
+  const curId = ctx.state.curriculumId || profile.curriculum;
+  const cur = getCurriculum(curId);
+  const subjectId = ctx.state.subjectId || 'math';
 
-  let worldN = params.world || defaultWorld(profile, cur);
+  let worldN = params.world || defaultWorld(profile, cur, curId);
   const world = cur.worlds.find(w => w.n === worldN);
   document.body.dataset.theme = world.theme;
 
@@ -28,7 +30,7 @@ export function worldMap(container, ctx, params = {}) {
   starsBadge.style.padding = '0 14px';
   starsBadge.style.borderRadius = '26px';
   starsBadge.innerHTML = `⭐ ${profile.totals.stars} &nbsp;🪙 ${profile.coins}`;
-  screen.appendChild(topbarEl(profile.name, () => ctx.navigate('profileSelect'), starsBadge));
+  screen.appendChild(topbarEl(profile.name, () => ctx.navigate('subjectSelect'), starsBadge));
 
   // ניווט בין עולמות
   const nav = el('div', 'world-nav');
@@ -37,7 +39,7 @@ export function worldMap(container, ctx, params = {}) {
   nav.append(nextBtn, el('div', 'wname', `${world.icon} ${world.name}`), prevBtn);
   const hasPrev = worldN > 1;
   const next = cur.worlds.find(w => w.n === worldN + 1);
-  const nextOpen = next && isWorldUnlocked(profile, next.n);
+  const nextOpen = next && isWorldUnlocked(profile, next.n, curId);
   if (!hasPrev) prevBtn.style.visibility = 'hidden';
   if (!next) nextBtn.style.visibility = 'hidden';
   else if (!nextOpen) { nextBtn.textContent = '🔒'; nextBtn.style.opacity = '0.6'; }
@@ -54,7 +56,7 @@ export function worldMap(container, ctx, params = {}) {
   const worldLevels = cur.levels.filter(l => l.world === worldN);
   worldLevels.forEach((level, i) => {
     const pos = NODE_POS[i] || NODE_POS[NODE_POS.length - 1];
-    const unlocked = isLevelUnlocked(profile, level);
+    const unlocked = isLevelUnlocked(profile, level, curId);
     const stars = profile.levels[level.id]?.stars || 0;
     const node = el('button', `level-node ${unlocked ? '' : 'locked'}`);
     node.style.left = pos.x + '%';
@@ -66,7 +68,8 @@ export function worldMap(container, ctx, params = {}) {
       if (!unlocked) { sfx.wrong(); return; }
       sfx.tap();
       speak(level.title);
-      ctx.navigate('exercise', { levelId: level.id });
+      // משחק הזיכרון רץ במסך משלו; שאר הנושאים במסך התרגיל
+      ctx.navigate(subjectId === 'memory' ? 'memory' : 'exercise', { levelId: level.id });
     });
     area.appendChild(node);
   });
@@ -91,10 +94,10 @@ export function worldMap(container, ctx, params = {}) {
 }
 
 // העולם שמוצג כברירת מחדל: העולם של השלב הפתוח האחרון
-function defaultWorld(profile, cur) {
+function defaultWorld(profile, cur, curId) {
   let world = 1;
   for (const level of cur.levels) {
-    if (isLevelUnlocked(profile, level)) world = level.world;
+    if (isLevelUnlocked(profile, level, curId)) world = level.world;
     else break;
   }
   return world;
