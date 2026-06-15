@@ -7,10 +7,11 @@ import { prizes } from './screens/prizes.js';
 import { character } from './screens/character.js';
 import { shop } from './screens/shop.js';
 import { parent } from './screens/parent.js';
+import { memory } from './screens/memory.js';
 import { unlock } from './audio.js';
 import { getProfile } from './storage.js';
 
-const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent };
+const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent, memory };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },

@@ -589,6 +589,55 @@ button {
   animation: floatUp 0.9s forwards;
 }
 
+/* ===== משחק הזיכרון ===== */
+.mem-screen { min-height: 0; }
+.mem-grid {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
+  padding: 6px;
+  min-height: 0;
+  overflow: auto;
+}
+.mem-card {
+  width: clamp(46px, 16vw, 88px);
+  aspect-ratio: 1;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  position: relative;
+  background: transparent;
+  padding: 0;
+  transition: transform 0.1s;
+}
+.mem-card:active { transform: scale(0.95); }
+.mem-card .mem-face, .mem-card .mem-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.mem-card .mem-back {
+  background: linear-gradient(135deg, #9b6ce8, #7c4dcc);
+  color: #fff;
+  font-size: 1.5rem;
+  opacity: 1;
+}
+.mem-card .mem-face {
+  background: var(--card);
+  font-size: clamp(1.5rem, 7vw, 2.7rem);
+  opacity: 0;
+  transform: scale(0.6);
+}
+.mem-card.flipped .mem-back, .mem-card.matched .mem-back { opacity: 0; }
+.mem-card.flipped .mem-face, .mem-card.matched .mem-face { opacity: 1; transform: scale(1); }
+.mem-card.matched .mem-face { background: #d9f7e4; animation: starPop 0.45s; }
+
 /* ===== מסך סיום סבב ===== */
 .results {
   justify-content: center;

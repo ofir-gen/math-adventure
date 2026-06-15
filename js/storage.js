@@ -50,6 +50,10 @@ function load() {
       }
       if (!Array.isArray(base.profiles[id].owned)) base.profiles[id].owned = [];
       if (typeof base.profiles[id].equipped !== 'object' || !base.profiles[id].equipped) base.profiles[id].equipped = {};
+      // מיגרציה: מדבקות ספציפיות-לנושא קיבלו קידומת קוריקולום (כדי לא להתנגש בין נושאים)
+      const mathCur = base.profiles[id].curriculum;
+      base.profiles[id].stickers = base.profiles[id].stickers.map(s =>
+        /^(first_level|first_perfect|world_done_\d+|world_perfect_\d+)$/.test(s) ? `${mathCur}:${s}` : s);
       // מיגרציה: דמות הפתיחה שנבחרה בעבר נחשבת בבעלות (כדי שאפשר יהיה לחזור אליה אחרי קניית דמות חדשה)
       const charType = base.profiles[id].character?.type;
       if (charType && !base.profiles[id].owned.includes('ch_' + charType)) {

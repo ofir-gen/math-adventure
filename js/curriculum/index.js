@@ -1,7 +1,9 @@
 import * as noya from './noya.js';
 import * as alin from './alin.js';
+import * as memNoya from './memNoya.js';
+import * as memAlin from './memAlin.js';
 
-export const curricula = { noya, alin };
+export const curricula = { noya, alin, memNoya, memAlin };
 
 export function getCurriculum(id) {
   return curricula[id];
@@ -21,7 +23,8 @@ export const SUBJECTS = [
 // מיפוי (פרופיל × נושא) → קוריקולום. נושא ללא ערך = "בקרוב".
 const CUR_MAP = {
   math: { noya: 'noya', alin: 'alin' },
-  // memory ו-hebrew יתווספו כשייבנו
+  memory: { noya: 'memNoya', alin: 'memAlin' },
+  // hebrew יתווסף כשייבנה
 };
 
 export function curriculumFor(profileId, subjectId) {

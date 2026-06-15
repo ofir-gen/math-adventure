@@ -75,11 +75,15 @@ export function nextStageInfo(totalStars) {
 export function stickerCatalog(curriculumId) {
   const cur = getCurriculum(curriculumId);
   const allLevels = cur.levels;
+  // מדבקות ספציפיות-לנושא — מזהה מתוייג בקוריקולום ובדיקה מוגבלת לשלביו (שלא יתנגשו בין נושאים)
+  const px = id => `${curriculumId}:${id}`;
+  const ids = allLevels.map(l => l.id);
   const list = [
-    { id: 'first_level', emoji: '🌟', name: 'הצעד הראשון',
-      test: p => Object.values(p.levels).some(l => l.stars > 0) },
-    { id: 'first_perfect', emoji: '💎', name: 'שלושה כוכבים!',
-      test: p => Object.values(p.levels).some(l => l.stars === 3) },
+    { id: px('first_level'), emoji: '🌟', name: 'הצעד הראשון',
+      test: p => ids.some(id => (p.levels[id]?.stars || 0) > 0) },
+    { id: px('first_perfect'), emoji: '💎', name: 'שלושה כוכבים!',
+      test: p => ids.some(id => (p.levels[id]?.stars || 0) === 3) },
+    // מדבקות גלובליות (משותפות לכל הנושאים, לפי הסכומים הכלליים)
     { id: 'streak_10', emoji: '🔥', name: '10 ברצף!',
       test: p => p.totals.bestStreak >= 10 },
     { id: 'correct_100', emoji: '💯', name: '100 תשובות',
@@ -91,11 +95,11 @@ export function stickerCatalog(curriculumId) {
   for (const w of cur.worlds) {
     const wl = allLevels.filter(l => l.world === w.n);
     list.push({
-      id: `world_done_${w.n}`, emoji: w.icon, name: `סיימתי את ${w.name}`,
+      id: px(`world_done_${w.n}`), emoji: w.icon, name: `סיימתי את ${w.name}`,
       test: p => wl.every(l => (p.levels[l.id]?.stars || 0) > 0),
     });
     list.push({
-      id: `world_perfect_${w.n}`, emoji: '🏅', name: `${w.name} מושלם!`,
+      id: px(`world_perfect_${w.n}`), emoji: '🏅', name: `${w.name} מושלם!`,
       test: p => wl.every(l => (p.levels[l.id]?.stars || 0) === 3),
     });
   }
