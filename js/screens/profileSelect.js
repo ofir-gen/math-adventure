@@ -9,7 +9,7 @@ export function profileSelect(container, ctx) {
   document.body.dataset.theme = 'home';
   const screen = el('div', 'screen profile-screen');
 
-  screen.appendChild(el('div', 'app-logo', 'הרפתקת המתמטיקה 🎈<span class="sub">מי משחקת עכשיו?</span>'));
+  screen.appendChild(el('div', 'app-logo', 'העולם של נויה ואלין 🌈<span class="sub">מי משחקת עכשיו?</span>'));
 
   const cards = el('div', 'profile-cards');
   for (const id of ['noya', 'alin']) {
