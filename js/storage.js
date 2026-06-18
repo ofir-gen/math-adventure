@@ -24,6 +24,7 @@ function emptyProfile(name, ttsName, curriculum) {
     owned: [],       // פריטי חנות שנקנו
     equipped: {},    // slot -> itemId (מה הדמות לובשת)
     room: {},        // spot -> itemId (רהיטים בחדר)
+    care: { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 },
     totals: { stars: 0, correct: 0, bestStreak: 0 },
   };
 }
@@ -52,6 +53,8 @@ function load() {
       if (!Array.isArray(base.profiles[id].owned)) base.profiles[id].owned = [];
       if (typeof base.profiles[id].equipped !== 'object' || !base.profiles[id].equipped) base.profiles[id].equipped = {};
       if (typeof base.profiles[id].room !== 'object' || !base.profiles[id].room) base.profiles[id].room = {};
+      const carDef = { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 };
+      base.profiles[id].care = { ...carDef, ...(parsed.profiles?.[id]?.care || {}) };
       // מיגרציה: מדבקות ספציפיות-לנושא קיבלו קידומת קוריקולום (כדי לא להתנגש בין נושאים)
       const mathCur = base.profiles[id].curriculum;
       base.profiles[id].stickers = base.profiles[id].stickers.map(s =>
@@ -116,6 +119,42 @@ export function dailyGiftAvailable(profileId, todayStr) {
 export function claimDailyGift(profileId, todayStr, coins) {
   const p = data.profiles[profileId];
   p.lastGift = todayStr;
+  p.coins += coins;
+  save();
+}
+
+// ===== טיפול בדמות =====
+const DECAY = { fed: 4, clean: 2, energy: 2.5, happy: 2.5 };
+const clamp = v => Math.max(0, Math.min(100, v));
+
+// מחיל ירידה לפי הזמן שעבר, מעדכן חותמת זמן, ומחזיר את המדים
+export function tickCare(profileId, now) {
+  const p = data.profiles[profileId];
+  const c = p.care || (p.care = { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 });
+  if (c.last) {
+    const hrs = Math.max(0, (now - c.last) / 3600000);
+    for (const k of ['fed', 'clean', 'energy', 'happy']) c[k] = clamp(c[k] - DECAY[k] * hrs);
+  }
+  c.last = now;
+  save();
+  return { ...c };
+}
+
+// מעלה מד (delta חיובי); 'full' מעלה ל-100. מחזיר את המדים המעודכנים
+export function raiseCare(profileId, key, amount) {
+  const c = data.profiles[profileId].care;
+  c[key] = amount === 'full' ? 100 : clamp(c[key] + amount);
+  save();
+  return { ...c };
+}
+
+// בונוס טיפול יומי — פעם ביום כשכל המדים גבוהים
+export function careBonusAvailable(profileId, todayStr) {
+  return data.profiles[profileId].lastCareBonus !== todayStr;
+}
+export function claimCareBonus(profileId, todayStr, coins) {
+  const p = data.profiles[profileId];
+  p.lastCareBonus = todayStr;
   p.coins += coins;
   save();
 }
