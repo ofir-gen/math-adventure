@@ -9,11 +9,18 @@ import * as storage from '../storage.js';
 import { sfx, speak } from '../audio.js';
 
 const SPOTS = [
-  { spot: 'wall', label: 'קיר' },
+  { spot: 'wallpaper', label: 'קיר' },
+  { spot: 'floor', label: 'רצפה' },
+  { spot: 'art', label: 'תמונה' },
+  { spot: 'window', label: 'חלון' },
+  { spot: 'shelf', label: 'מדף' },
   { spot: 'bed', label: 'מיטה' },
   { spot: 'plant', label: 'צמח' },
+  { spot: 'lamp', label: 'מנורה' },
   { spot: 'toy', label: 'צעצוע' },
 ];
+// חריצים שמציבים אימוג'י בסצנה (קיר/רצפה הם סגנון רקע, לא אימוג'י)
+const SCENE_SPOTS = ['art', 'window', 'shelf', 'bed', 'plant', 'lamp', 'toy'];
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 export function room(container, ctx, params = {}) {
@@ -44,10 +51,14 @@ export function room(container, ctx, params = {}) {
       : `<div class="shelf-empty">עוד אין גביעים — שחקי ואספי! 🏆</div><div class="shelf-board"></div>`;
     scroll.appendChild(shelf);
 
-    // הסצנה: רהיטים + הדמות + מצב רוח
+    // הסצנה: קיר/רצפה מעוצבים + רהיטים + הדמות + מצב רוח
     const scene = el('div', 'room-scene');
+    if (profile.room?.wallpaper) scene.dataset.wall = profile.room.wallpaper;
+    if (profile.room?.floor) scene.dataset.floor = profile.room.floor;
+    scene.appendChild(el('div', 'room-wall'));
+    scene.appendChild(el('div', 'room-floor'));
     const decorMap = Object.fromEntries(decorItems().map(i => [i.id, i]));
-    for (const { spot } of SPOTS) {
+    for (const spot of SCENE_SPOTS) {
       const id = profile.room?.[spot];
       if (id && decorMap[id]) scene.appendChild(el('span', `room-decor decor-${spot}`, decorMap[id].icon));
     }

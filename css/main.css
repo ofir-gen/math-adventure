@@ -801,18 +801,32 @@ button {
   position: relative;
   width: min(460px, 94vw);
   height: 320px;
-  background: linear-gradient(#fbe7d2 0%, #fbe7d2 60%, #e8c9a0 60%, #e8c9a0 100%);
   border-radius: 20px;
   box-shadow: var(--shadow);
   overflow: hidden;
 }
-.room-char { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 2; }
-/* רהיטים גדולים ופרופורציונליים לחדר, יושבים על הרצפה */
-.room-decor { position: absolute; line-height: 1; }
-.decor-wall { top: 8%; left: 50%; transform: translateX(-50%); font-size: 4.4rem; }
-.decor-bed { bottom: 4%; left: 2%; font-size: 6rem; }
-.decor-plant { bottom: 4%; right: 3%; font-size: 5.4rem; }
-.decor-toy { bottom: 4%; left: 30%; font-size: 4.2rem; z-index: 1; }
+/* קיר ורצפה — סגנון לפי data-wall / data-floor */
+.room-wall { position: absolute; left: 0; right: 0; top: 0; height: 60%; background: #fbe7d2; }
+.room-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: #e8c9a0; }
+.room-scene[data-wall="wp_pink"] .room-wall { background: #ffd6ea; }
+.room-scene[data-wall="wp_sky"] .room-wall { background: #cfe9fb; }
+.room-scene[data-wall="wp_stripes"] .room-wall { background: repeating-linear-gradient(90deg, #ffe0ef 0 16px, #ffc9e2 16px 32px); }
+.room-scene[data-wall="wp_dots"] .room-wall { background-color: #e8d6fb; background-image: radial-gradient(#fff 22%, transparent 24%); background-size: 24px 24px; }
+.room-scene[data-wall="wp_stars"] .room-wall { background-color: #3a2e6e; background-image: radial-gradient(#ffd54a 13%, transparent 15%); background-size: 30px 30px; }
+.room-scene[data-floor="fl_wood"] .room-floor { background: repeating-linear-gradient(90deg, #d8a86a 0 26px, #cf9d5e 26px 28px); }
+.room-scene[data-floor="fl_pink"] .room-floor { background: #f7b8d4; }
+.room-scene[data-floor="fl_green"] .room-floor { background: #9fdca0; }
+.room-scene[data-floor="fl_blue"] .room-floor { background: #9fc8e8; }
+.room-scene[data-floor="fl_checker"] .room-floor { background-color: #f0d8b0; background-image: conic-gradient(#d8b888 0 25%, transparent 0 50%, #d8b888 0 75%, transparent 0); background-size: 40px 40px; }
+.room-char { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 3; }
+.room-decor { position: absolute; line-height: 1; z-index: 2; }
+.decor-art { top: 8%; left: 13%; font-size: 3.6rem; }
+.decor-window { top: 7%; left: 50%; transform: translateX(-50%); font-size: 4rem; }
+.decor-shelf { top: 10%; right: 11%; font-size: 3.4rem; }
+.decor-bed { bottom: 4%; left: 1%; font-size: 5.6rem; }
+.decor-plant { bottom: 4%; right: 2%; font-size: 5rem; }
+.decor-lamp { bottom: 4%; right: 25%; font-size: 4.4rem; }
+.decor-toy { bottom: 4%; left: 25%; font-size: 3.8rem; z-index: 1; }
 .room-char.petable { background: none; border: none; padding: 0; cursor: pointer; }
 .room-scene.sleeping { filter: brightness(0.55); transition: filter 0.4s; }
 .mood-face { position: absolute; top: 6px; right: 10px; font-size: 1.9rem; z-index: 3; }

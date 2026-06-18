@@ -61,16 +61,22 @@ export const SETS = [
 export const setOwned = (profile, set) => Object.values(set.equip).every(id => profile.owned.includes(id));
 export const setEquipped = (profile, set) => Object.entries(set.equip).every(([slot, id]) => profile.equipped[slot] === id);
 
-// רהיטים לחדר — slot 'decor', spot = מיקום בחדר (bed/plant/toy/wall)
+// רהיטים וקישוטים לחדר — slot 'decor', spot = מיקום בחדר.
+// spot 'wallpaper'/'floor' = סגנון קיר/רצפה (לא אימוג'י — מוחל כרקע הסצנה).
 const DECOR_DEFS = [
+  ['art', [['rm_picture', 'תמונה', 'תְּמוּנָה', '🖼️'], ['rm_art', 'ציור', 'צִיּוּר', '🎨'], ['rm_butterfly', 'פרפר', 'פַּרְפָּר', '🦋'], ['rm_starwall', 'כוכב', 'כּוֹכָב', '⭐']]],
+  ['window', [['rm_window', 'חלון', 'חַלּוֹן', '🪟'], ['rm_view', 'נוף', 'נוֹף', '⛅']]],
+  ['shelf', [['rm_books', 'מדף ספרים', 'מַדַּף סְפָרִים', '📚'], ['rm_clock', 'שעון', 'שָׁעוֹן', '⏰'], ['rm_trophy', 'גביע', 'גָּבִיעַ', '🏆']]],
   ['bed', [['rm_bed', 'מיטה', 'מִטָּה', '🛏️'], ['rm_sofa', 'ספה', 'סַפָּה', '🛋️'], ['rm_basket', 'סלסלה', 'סַלְסִלָּה', '🧺']]],
-  ['plant', [['rm_plant', 'עציץ', 'עָצִיץ', '🪴'], ['rm_sunflower', 'חמנייה', 'חַמָּנִית', '🌻'], ['rm_cactus', 'קקטוס', 'קַקְטוּס', '🌵']]],
-  ['toy', [['rm_teddy', 'דובי', 'דֻּבִּי', '🧸'], ['rm_ball', 'כדור', 'כַּדּוּר', '⚽'], ['rm_balloons', 'בלונים', 'בַּלּוֹנִים', '🎈']]],
-  ['wall', [['rm_picture', 'תמונה', 'תְּמוּנָה', '🖼️'], ['rm_window', 'חלון', 'חַלּוֹן', '🪟'], ['rm_rainbow', 'קשת', 'קֶשֶׁת', '🌈']]],
+  ['plant', [['rm_plant', 'עציץ', 'עָצִיץ', '🪴'], ['rm_sunflower', 'חמנייה', 'חַמָּנִית', '🌻'], ['rm_cactus', 'קקטוס', 'קַקְטוּס', '🌵'], ['rm_tulip', 'צבעוני', 'צִבְעוֹנִי', '🌷']]],
+  ['lamp', [['rm_lamp', 'מנורה', 'מְנוֹרָה', '🏮'], ['rm_lantern', 'פנס', 'פָּנָס', '🪔']]],
+  ['toy', [['rm_teddy', 'דובי', 'דֻּבִּי', '🧸'], ['rm_ball', 'כדור', 'כַּדּוּר', '⚽'], ['rm_balloons', 'בלונים', 'בַּלּוֹנִים', '🎈'], ['rm_yoyo', 'יו-יו', 'יוֹ-יוֹ', '🪀']]],
+  ['wallpaper', [['wp_pink', 'קיר ורוד', 'קִיר וָרֹד', '🌸'], ['wp_stripes', 'קיר פסים', 'קִיר פַּסִּים', '🎀'], ['wp_dots', 'קיר נקודות', 'קִיר נְקֻדּוֹת', '⚪'], ['wp_stars', 'קיר כוכבים', 'קִיר כּוֹכָבִים', '🌟'], ['wp_sky', 'קיר שמיים', 'קִיר שָׁמַיִם', '☁️']]],
+  ['floor', [['fl_wood', 'רצפת עץ', 'רִצְפַּת עֵץ', '🪵'], ['fl_pink', 'רצפה ורודה', 'רִצְפָּה וְרֻדָּה', '🩷'], ['fl_green', 'רצפה ירוקה', 'רִצְפָּה יְרֻקָּה', '🟢'], ['fl_blue', 'רצפה כחולה', 'רִצְפָּה כְּחֻלָּה', '🟦'], ['fl_checker', 'משבצות', 'מִשְׁבָּצוֹת', '🏁']]],
 ];
 for (const [spot, defs] of DECOR_DEFS) {
   for (const [id, name, tn, icon] of defs) {
-    ITEMS.push({ id, slot: 'decor', spot, name, tn, icon, price: 25 });
+    ITEMS.push({ id, slot: 'decor', spot, name, tn, icon, price: spot === 'wallpaper' || spot === 'floor' ? 30 : 25 });
   }
 }
 
