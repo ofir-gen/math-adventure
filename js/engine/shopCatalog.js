@@ -37,6 +37,7 @@ export const ITEMS = [
   { id: 'ch_unicorn', slot: 'char', charType: 'unicorn', name: 'חד-קרן', tn: 'חַד-קֶרֶן', icon: '🦄', price: 100 },
   { id: 'ch_panda', slot: 'char', charType: 'panda', name: 'פנדה', tn: 'פַּנְדָּה', icon: '🐼', price: 100 },
   { id: 'ch_puppy', slot: 'char', charType: 'puppy', name: 'כלבלב', tn: 'כְּלַבְלַב', icon: '🐶', price: 100 },
+  { id: 'ch_ladybug', slot: 'char', charType: 'ladybug', name: 'חיפושית', tn: 'חִפּוּשִׁית', icon: '🐞', price: 100 },
   // נדירים — רק מביצת הפתעה!
   { id: 'hd_diamond', slot: 'head', name: 'כתר יהלומים', tn: 'כֶּתֶר יַהֲלוֹמִים', icon: '💎', price: 0, rare: true },
   { id: 'hd_halo', slot: 'head', name: 'הילה קסומה', tn: 'הִילָה קְסוּמָה', icon: '✨', price: 0, rare: true },

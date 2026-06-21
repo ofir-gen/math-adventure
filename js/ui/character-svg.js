@@ -11,6 +11,7 @@ const PALETTE = {
   unicorn: { body: '#fbeef7', belly: '#ffffff', ear: '#f6b8d8', cheek: '#f6a8c8' },
   panda: { body: '#f7f7f5', belly: '#ffffff', ear: '#3d3a3a', cheek: '#f08c8c' },
   puppy: { body: '#dba87a', belly: '#f7e8d3', ear: '#b07c4f', cheek: '#f08c8c' },
+  ladybug: { body: '#e23b3b', belly: '#f7d0d0', ear: '#2a2a2a', cheek: '#ff9a9a' },
 };
 
 export function characterSVG(type, stage, size = 120, opts = {}) {
@@ -27,6 +28,7 @@ export function characterSVG(type, stage, size = 120, opts = {}) {
     <!-- גוף -->
     <circle cx="50" cy="66" r="31" fill="${p.body}"/>
     <ellipse cx="50" cy="76" rx="17" ry="13" fill="${p.belly}"/>
+    ${type === 'ladybug' ? ladybugSpots() : ''}
     <!-- רגליים -->
     <ellipse cx="38" cy="96" rx="8" ry="5.5" fill="${p.body}"/>
     <ellipse cx="62" cy="96" rx="8" ry="5.5" fill="${p.body}"/>
@@ -44,6 +46,13 @@ export function characterSVG(type, stage, size = 120, opts = {}) {
     ${eq.head ? headItem(eq.head) : ''}
     ${eq.flag ? heldFlag(eq.flag) : ''}
   </svg>`;
+}
+
+// נקודות שחורות על גב החיפושית + קו כנפיים עדין מעל הפנים
+function ladybugSpots() {
+  const dot = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#2a2a2a"/>`;
+  return `<path d="M50 37 L50 50" stroke="#2a2a2a" stroke-width="1.6" stroke-linecap="round"/>`
+    + dot(33, 53, 3.2) + dot(67, 53, 3.2) + dot(27, 69, 3) + dot(73, 69, 3) + dot(50, 90, 3);
 }
 
 // דגל מדינה שהדמות מחזיקה ביד הימנית — מוט + בד
@@ -102,6 +111,14 @@ function ears(type, p) {
       <circle cx="29" cy="42" r="4.5" fill="#f78cc0"/>
       <circle cx="25" cy="50" r="4" fill="#a8c8f5"/>
       <circle cx="23" cy="58" r="3.5" fill="#8fe3a8"/>`;
+  }
+  if (type === 'ladybug') {
+    // מחושים — שני קווים שחורים עם קצה עגול
+    return `
+      <path d="M44 40 Q40 26 36 20" stroke="#2a2a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="36" cy="19" r="3" fill="#2a2a2a"/>
+      <path d="M56 40 Q60 26 64 20" stroke="#2a2a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <circle cx="64" cy="19" r="3" fill="#2a2a2a"/>`;
   }
   if (type === 'panda') {
     return `

@@ -49,6 +49,11 @@ body[data-theme="ice"]     { background: linear-gradient(170deg, #d8f0fb 0%, #8a
 body[data-theme="crystal"] { background: linear-gradient(170deg, #e8c8f5 0%, #b07fd8 55%, #6a3f9e 100%); }
 body[data-theme="story"]   { background: linear-gradient(170deg, #ffcf9e 0%, #e8927c 55%, #9e5a7a 100%); }
 body[data-theme="palace"]  { background: linear-gradient(170deg, #c8a8f5 0%, #8a5fd8 55%, #4a2f8a 100%); }
+body[data-theme="ladybug"] {
+  background-color: #d92c2c;
+  background-image: radial-gradient(rgba(0,0,0,0.18) 14%, transparent 16%), linear-gradient(170deg, #ff6b6b 0%, #d92c2c 55%, #9e1f1f 100%);
+  background-size: 46px 46px, cover;
+}
 body[data-theme="rainbow"] { background: linear-gradient(170deg, #ff9ec4 0%, #ffd86f 35%, #a0e8af 70%, #7ec8ff 100%); }
 body[data-theme="shapes"]  { background: linear-gradient(170deg, #c3c8ff 0%, #8f9fe8 55%, #5f6fd0 100%); }
 body[data-theme="numbers"] { background: linear-gradient(170deg, #ffd6a0 0%, #f5a86c 55%, #e87f9e 100%); }

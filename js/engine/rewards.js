@@ -43,6 +43,7 @@ export const CHARACTERS = [
   { type: 'unicorn', name: 'חד-קרן', tn: 'חַד-קֶרֶן', g: 'm' },
   { type: 'panda', name: 'פנדה', tn: 'פַּנְדָּה', g: 'f' },
   { type: 'puppy', name: 'כלבלב', tn: 'כְּלַבְלַב', g: 'm' },
+  { type: 'ladybug', name: 'חיפושית', tn: 'חִפּוּשִׁית', g: 'f' },
 ];
 
 export const charByType = type => CHARACTERS.find(c => c.type === type);
@@ -105,9 +106,9 @@ export function stickerCatalog(curriculumId) {
   }
 
   const milestones = curriculumId === 'noya'
-    ? [5, 10, 20, 30, 45, 60, 90, 120, 150, 180]
+    ? [5, 10, 20, 30, 45, 60, 90, 120, 150, 180, 198]
     : [5, 10, 20, 30, 45];
-  const mEmoji = ['⭐', '✨', '💫', '🌠', '🎇', '👑', '🌈', '🔮', '🏆', '💎'];
+  const mEmoji = ['⭐', '✨', '💫', '🌠', '🎇', '👑', '🌈', '🔮', '🏆', '💎', '🐞'];
   milestones.forEach((m, i) => {
     list.push({
       id: `stars_${m}`, emoji: mEmoji[i], name: `${m} כוכבים`,

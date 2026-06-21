@@ -1,4 +1,4 @@
-// הקוריקולום של נויה — 60 שלבים, 10 עולמות: חיבור/חיסור עד 100, כפל, חילוק ובעיות מילוליות
+// הקוריקולום של נויה — 66 שלבים, 11 עולמות: חיבור/חיסור עד 100, כפל, חילוק, בעיות מילוליות ועולם שליטה בלוח הכפל
 // סכמת שלב: op: add | sub | mixed | missing | add3 | boss | mul | mulMissing | div | divMissing | word
 // regroup: 'required' (חייב המרה/פריטה) | 'forbidden' (אסור) | 'any'
 // טווח עם step (למשל עשרות עגולות): { min, max, step }
@@ -18,6 +18,7 @@ export const worlds = [
   { n: 8, name: 'מערת הקריסטל', icon: '💎', theme: 'crystal' },
   { n: 9, name: 'עיר הסיפורים', icon: '📚', theme: 'story' },
   { n: 10, name: 'ארמון הקסם', icon: '🏰', theme: 'palace' },
+  { n: 11, name: 'גן החיפושיות', icon: '🐞', theme: 'ladybug' },
 ];
 
 const Q = 10;
@@ -127,4 +128,12 @@ export const levels = [
   { id: 'n59', world: 10, title: 'שני צעדים', op: 'word', stories: ['twoStep'], result: { max: 20 }, questions: Q },
   { id: 'n60', world: 10, title: 'הבוס הגדול! 👑', op: 'word',
     stories: ['add', 'sub', 'compare', 'combine', 'mulStory', 'divStory', 'twoStep'], result: { max: 100 }, questions: Q },
+
+  // ===== עולם 11: גן החיפושיות — שליטה בכל לוח הכפל (מעורב) =====
+  { id: 'n61', world: 11, title: 'לוחות קלים מעורבים', op: 'mul', tables: [2, 5, 10], b: { min: 1, max: 10 }, questions: Q },
+  { id: 'n62', world: 11, title: 'עוד לוחות מעורבים', op: 'mul', tables: [3, 4, 6], b: { min: 1, max: 10 }, questions: Q },
+  { id: 'n63', world: 11, title: 'הלוחות הקשים', op: 'mul', tables: [7, 8, 9], b: { min: 1, max: 10 }, questions: Q },
+  { id: 'n64', world: 11, title: 'כל לוח הכפל', op: 'mul', tables: [2, 3, 4, 5, 6, 7, 8, 9, 10], b: { min: 1, max: 10 }, questions: Q },
+  { id: 'n65', world: 11, title: 'המספר החסר', op: 'mulMissing', tables: [2, 3, 4, 5, 6, 7, 8, 9, 10], b: { min: 2, max: 10 }, questions: Q },
+  { id: 'n66', world: 11, title: 'שלב הבוס! 👑', op: 'mul', tables: [2, 3, 4, 5, 6, 7, 8, 9, 10], b: { min: 1, max: 10 }, questions: Q },
 ];
