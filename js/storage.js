@@ -1,4 +1,5 @@
 // אחסון התקדמות — blob יחיד ב-localStorage, כתיבה מיידית בכל שינוי
+// נשמר: כוכבים לשלב, ציוני מבחנים, ומעקב מיומנויות (כל תשובה נרשמת) לדוח החוזקות והחולשות
 const KEY = 'mathAdventure.v1';
 
 function defaults() {
@@ -17,20 +18,20 @@ function emptyProfile(name, ttsName, curriculum) {
     name,
     ttsName, // השם מנוקד — להקראה נכונה
     curriculum,
-    character: null, // { type: 'bunny' | 'cat' | 'dragon' }
-    levels: {},      // levelId -> { stars, attempts }
-    exams: {},       // examId -> { best, attempts, history: [{ score, correct, total, ms, date }] }
-    stickers: [],
-    coins: 0,        // מטבעות לחנות — הכוכבים לעולם לא יורדים
-    owned: [],       // פריטי חנות שנקנו
-    equipped: {},    // slot -> itemId (מה הדמות לובשת)
-    room: {},        // spot -> itemId (רהיטים בחדר)
-    care: { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 },
-    totals: { stars: 0, correct: 0, bestStreak: 0 },
+    levels: {},   // levelId -> { stars, attempts }
+    exams: {},    // examId -> { best, last, attempts, history: [{ score, correct, total, ms, date }] }
+    // levelId -> { asked, right, wrong, ms, examAsked, examRight, examMs, last }
+    // asked/right = שאלות תרגול (נכון בניסיון ראשון), exam* = שאלות במבחנים. ms = זמן מצטבר עד התשובה הראשונה
+    skills: {},
+    rounds: [],   // סבבים אחרונים: { levelId, stars, missed, total, ms, date } (עד 300)
+    totals: { stars: 0, correct: 0, bestStreak: 0, questions: 0, ms: 0 },
+    lastPlayed: 0,
   };
 }
 
-const EMPTY_TOTALS = { stars: 0, correct: 0, bestStreak: 0 };
+const EMPTY_TOTALS = { stars: 0, correct: 0, bestStreak: 0, questions: 0, ms: 0 };
+// שדות מגרסאות קודמות (חנות, דמות, מדבקות) — מנוקים בטעינה
+const LEGACY_FIELDS = ['character', 'stickers', 'coins', 'owned', 'equipped', 'room', 'care', 'lastGift', 'lastCareBonus'];
 
 let data = load();
 
@@ -39,33 +40,16 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return defaults();
     const parsed = JSON.parse(raw);
-    // מיזוג עם ברירות מחדל — שדות חדשים בגרסאות עתידיות לא ישברו שמירות ישנות
+    // מיזוג עם ברירות מחדל — שדות חדשים לא ישברו שמירות ישנות
     const base = defaults();
     for (const id of Object.keys(base.profiles)) {
-      base.profiles[id] = { ...base.profiles[id], ...(parsed.profiles?.[id] || {}) };
-      base.profiles[id].totals = { ...EMPTY_TOTALS, ...(parsed.profiles?.[id]?.totals || {}) };
-      base.profiles[id].ttsName = base.profiles[id].ttsName || base.profiles[id].name;
-      // מענק רטרואקטיבי: שמירה מלפני עידן החנות מקבלת מטבעות לפי ההתקדמות שכבר נצברה
-      const parsedP = parsed.profiles?.[id];
-      if (parsedP && parsedP.coins === undefined) {
-        const t = base.profiles[id].totals;
-        base.profiles[id].coins = t.correct + t.stars * 5;
-      }
-      if (!Array.isArray(base.profiles[id].owned)) base.profiles[id].owned = [];
-      if (typeof base.profiles[id].equipped !== 'object' || !base.profiles[id].equipped) base.profiles[id].equipped = {};
-      if (typeof base.profiles[id].room !== 'object' || !base.profiles[id].room) base.profiles[id].room = {};
-      if (typeof base.profiles[id].exams !== 'object' || !base.profiles[id].exams) base.profiles[id].exams = {};
-      const carDef = { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 };
-      base.profiles[id].care = { ...carDef, ...(parsed.profiles?.[id]?.care || {}) };
-      // מיגרציה: מדבקות ספציפיות-לנושא קיבלו קידומת קוריקולום (כדי לא להתנגש בין נושאים)
-      const mathCur = base.profiles[id].curriculum;
-      base.profiles[id].stickers = base.profiles[id].stickers.map(s =>
-        /^(first_level|first_perfect|world_done_\d+|world_perfect_\d+)$/.test(s) ? `${mathCur}:${s}` : s);
-      // מיגרציה: דמות הפתיחה שנבחרה בעבר נחשבת בבעלות (כדי שאפשר יהיה לחזור אליה אחרי קניית דמות חדשה)
-      const charType = base.profiles[id].character?.type;
-      if (charType && !base.profiles[id].owned.includes('ch_' + charType)) {
-        base.profiles[id].owned.push('ch_' + charType);
-      }
+      const p = { ...base.profiles[id], ...(parsed.profiles?.[id] || {}) };
+      p.totals = { ...EMPTY_TOTALS, ...(parsed.profiles?.[id]?.totals || {}) };
+      p.ttsName = p.ttsName || p.name;
+      for (const k of ['levels', 'exams', 'skills']) if (typeof p[k] !== 'object' || !p[k]) p[k] = {};
+      if (!Array.isArray(p.rounds)) p.rounds = [];
+      for (const k of LEGACY_FIELDS) delete p[k];
+      base.profiles[id] = p;
     }
     base.settings = { ...base.settings, ...(parsed.settings || {}) };
     return base;
@@ -88,108 +72,47 @@ export function getProfile(id) {
   return data.profiles[id];
 }
 
-export function setCharacter(profileId, type, { grantOwnership = false } = {}) {
-  const p = data.profiles[profileId];
-  p.character = { type };
-  // דמות הפתיחה החינמית נרשמת בבעלות; החלפה רגילה לא מעניקה בעלות
-  if (grantOwnership && !p.owned.includes('ch_' + type)) p.owned.push('ch_' + type);
-  save();
+export function profileIds() {
+  return Object.keys(data.profiles);
 }
 
-// קניית רהיט לחדר: מטבעות יורדים, נוסף לבעלות (ההצבה נעשית במסך החדר)
-export function buyDecor(profileId, itemId, price) {
+// רישום תשובה יחידה (הניסיון הראשון בשאלה) — הבסיס לדוח החוזקות והחולשות
+export function recordAnswer(profileId, levelId, { correct, ms, exam = false }) {
   const p = data.profiles[profileId];
-  if (p.coins < price || p.owned.includes(itemId)) return false;
-  p.coins -= price;
-  p.owned.push(itemId);
-  save();
-  return true;
-}
-
-// הצבת/הסרת רהיט בחריץ בחדר
-export function setRoomItem(profileId, spot, itemId) {
-  const p = data.profiles[profileId];
-  if (itemId === null) delete p.room[spot];
-  else p.room[spot] = itemId;
-  save();
-}
-
-// מתנה יומית: מחזיר true אם מגיעה היום (לפי תאריך אחרון)
-export function dailyGiftAvailable(profileId, todayStr) {
-  return data.profiles[profileId].lastGift !== todayStr;
-}
-export function claimDailyGift(profileId, todayStr, coins) {
-  const p = data.profiles[profileId];
-  p.lastGift = todayStr;
-  p.coins += coins;
-  save();
-}
-
-// ===== טיפול בדמות =====
-const DECAY = { fed: 4, clean: 2, energy: 2.5, happy: 2.5 };
-const clamp = v => Math.max(0, Math.min(100, v));
-
-// מחיל ירידה לפי הזמן שעבר, מעדכן חותמת זמן, ומחזיר את המדים
-export function tickCare(profileId, now) {
-  const p = data.profiles[profileId];
-  const c = p.care || (p.care = { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 });
-  if (c.last) {
-    const hrs = Math.max(0, (now - c.last) / 3600000);
-    for (const k of ['fed', 'clean', 'energy', 'happy']) c[k] = clamp(c[k] - DECAY[k] * hrs);
+  const s = p.skills[levelId] || { asked: 0, right: 0, wrong: 0, ms: 0, examAsked: 0, examRight: 0, examMs: 0, last: 0 };
+  const t = Math.max(0, Math.min(ms || 0, 120000)); // חסימת זמנים חריגים (הטאבלט נשאר פתוח)
+  if (exam) {
+    s.examAsked += 1;
+    if (correct) s.examRight += 1;
+    s.examMs += t;
+  } else {
+    s.asked += 1;
+    if (correct) s.right += 1; else s.wrong += 1;
+    s.ms += t;
   }
-  c.last = now;
+  s.last = Date.now();
+  p.skills[levelId] = s;
+  p.totals.questions += 1;
+  p.totals.ms += t;
+  p.lastPlayed = s.last;
   save();
-  return { ...c };
+  return s;
 }
 
-// מעלה מד (delta חיובי); 'full' מעלה ל-100. מחזיר את המדים המעודכנים
-export function raiseCare(profileId, key, amount) {
-  const c = data.profiles[profileId].care;
-  c[key] = amount === 'full' ? 100 : clamp(c[key] + amount);
-  save();
-  return { ...c };
-}
-
-// בונוס טיפול יומי — פעם ביום כשכל המדים גבוהים
-export function careBonusAvailable(profileId, todayStr) {
-  return data.profiles[profileId].lastCareBonus !== todayStr;
-}
-export function claimCareBonus(profileId, todayStr, coins) {
-  const p = data.profiles[profileId];
-  p.lastCareBonus = todayStr;
-  p.coins += coins;
-  save();
-}
-
-// שם אישי לדמות (ניתן ע"י הילדה). נשמר על הדמות הנוכחית.
-export function setCharacterName(profileId, name) {
-  const p = data.profiles[profileId];
-  if (!p.character) return;
-  p.character.name = (name || '').trim().slice(0, 14) || undefined;
-  save();
-}
-
-// קניית דמות: מטבעות יורדים, הדמות נרשמת בבעלות ונכנסת לפעולה מיד
-export function buyCharacter(profileId, itemId, price, type) {
-  const p = data.profiles[profileId];
-  if (p.coins < price || p.owned.includes(itemId)) return false;
-  p.coins -= price;
-  p.owned.push(itemId);
-  p.character = { type };
-  save();
-  return true;
-}
-
-// רישום סבב שהושלם; מחזיר את מצב הרמה המעודכן
-export function recordRound(profileId, levelId, stars, correctCount, bestStreakInRound) {
+// רישום סבב תרגול שהושלם; מחזיר את מצב הרמה המעודכן
+export function recordRound(profileId, levelId, stars, correctCount, bestStreakInRound, extra = {}) {
   const p = data.profiles[profileId];
   const lvl = p.levels[levelId] || { stars: 0, attempts: 0 };
   lvl.attempts += 1;
   lvl.stars = Math.max(lvl.stars, stars);
+  lvl.lastStars = stars;
   p.levels[levelId] = lvl;
   p.totals.correct += correctCount;
   p.totals.bestStreak = Math.max(p.totals.bestStreak, bestStreakInRound);
   p.totals.stars = Object.values(p.levels).reduce((s, l) => s + l.stars, 0);
+  p.rounds.push({ levelId, stars, missed: extra.missed ?? 0, total: extra.total ?? 0, ms: extra.ms ?? 0, date: Date.now() });
+  if (p.rounds.length > 300) p.rounds.splice(0, p.rounds.length - 300);
+  p.lastPlayed = Date.now();
   save();
   return lvl;
 }
@@ -202,74 +125,11 @@ export function recordExam(profileId, examId, { score, correct, total, ms }) {
   rec.best = Math.max(rec.best, score);
   rec.last = score;
   rec.history.push({ score, correct, total, ms, date: Date.now() });
-  if (rec.history.length > 6) rec.history.shift();
+  if (rec.history.length > 10) rec.history.shift();
   p.exams[examId] = rec;
+  p.lastPlayed = Date.now();
   save();
   return rec;
-}
-
-export function addCoins(profileId, amount) {
-  data.profiles[profileId].coins += amount;
-  save();
-}
-
-// קנייה מהמדף: מוריד מטבעות, מוסיף לבעלות ולובש מיד
-export function buyItem(profileId, itemId, price, slot) {
-  const p = data.profiles[profileId];
-  if (p.coins < price || p.owned.includes(itemId)) return false;
-  p.coins -= price;
-  p.owned.push(itemId);
-  p.equipped[slot] = itemId;
-  save();
-  return true;
-}
-
-// קניית ערכת תלבושת: מעניק את כל החלקים ומלביש אותם יחד.
-// מחזיר 'bought' | 'equipped' | false (אין מספיק מטבעות)
-export function buySet(profileId, set) {
-  const p = data.profiles[profileId];
-  const allOwned = Object.values(set.equip).every(id => p.owned.includes(id));
-  let result = 'equipped';
-  if (!allOwned) {
-    if (p.coins < set.price) return false;
-    p.coins -= set.price;
-    for (const id of Object.values(set.equip)) if (!p.owned.includes(id)) p.owned.push(id);
-    result = 'bought';
-  }
-  for (const [slot, id] of Object.entries(set.equip)) p.equipped[slot] = id;
-  save();
-  return result;
-}
-
-// ביצת הפתעה: תשלום ופריט נפרדים
-export function spendCoins(profileId, amount) {
-  const p = data.profiles[profileId];
-  if (p.coins < amount) return false;
-  p.coins -= amount;
-  save();
-  return true;
-}
-
-export function grantItem(profileId, itemId, slot) {
-  const p = data.profiles[profileId];
-  if (!p.owned.includes(itemId)) p.owned.push(itemId);
-  p.equipped[slot] = itemId;
-  save();
-}
-
-export function equipItem(profileId, slot, itemId) {
-  const p = data.profiles[profileId];
-  if (itemId === null) delete p.equipped[slot];
-  else p.equipped[slot] = itemId;
-  save();
-}
-
-export function addStickers(profileId, stickerIds) {
-  const p = data.profiles[profileId];
-  for (const id of stickerIds) {
-    if (!p.stickers.includes(id)) p.stickers.push(id);
-  }
-  save();
 }
 
 export function exportData() {

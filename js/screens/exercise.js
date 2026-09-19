@@ -1,12 +1,10 @@
 // מסך התרגיל והמבחן: סבב שאלות, משוב, ומסך סיום עם כוכבים/ציון ותגמולים
 // params: { levelId } לתרגול, או { exam: <מספר עולם> | 'final' } למבחן
 import { el, groupEl, answerCardEl, numpadEl, starsHTML } from '../ui/components.js';
-import { profileCharSVG } from '../ui/character-svg.js';
 import { clockSVG, fractionSVG, fractionHTML, polygonSVG, shapeSVG, gridSVG } from '../ui/math-svg.js';
 import { confetti } from '../ui/confetti.js';
 import { generateRound, generateExam, answerText } from '../engine/generator.js';
-import { calcStars, applyRound, applyExam, characterStage, examConfig, examId, FINAL_EXAM, scoreBand } from '../engine/rewards.js';
-import { evolveOverlay } from '../ui/celebrate.js';
+import { calcStars, applyRound, applyExam, examConfig, examId, examPassed, FINAL_EXAM, scoreBand, isLevelUnlocked } from '../engine/rewards.js';
 import { getCurriculum, levelById, worldLevels } from '../curriculum/index.js';
 import * as storage from '../storage.js';
 import { speak, sfx } from '../audio.js';
@@ -54,10 +52,12 @@ export function exercise(container, ctx, params) {
     locked: false,    // נעילת קלט בזמן משוב
     startTime: 0,
     timer: null,
+    qStart: 0,        // תחילת השאלה הנוכחית — לזמן תשובה
+    recorded: false,  // הניסיון הראשון בשאלה כבר נרשם למעקב המיומנויות
   };
 
   const screen = el('div', 'screen ex-screen');
-  let qArea, dots, companion, timerEl;
+  let qArea, dots, timerEl;
   container.appendChild(screen);
   if (isExam) renderExamIntro();
   else startRound();
@@ -77,8 +77,8 @@ export function exercise(container, ctx, params) {
     const start = el('button', 'btn primary', 'מתחילים! ✏️');
     start.style.fontSize = '1.5rem';
     start.addEventListener('click', () => { sfx.tap(); startRound(); });
-    const back = el('button', 'btn', '🗺️ למפה');
-    back.addEventListener('click', () => ctx.navigate('worldMap', { world: mapWorld }));
+    const back = el('button', 'btn', '📋 לרשימה');
+    back.addEventListener('click', () => ctx.navigate('levels', { world: mapWorld }));
     actions.append(start, back);
     intro.appendChild(actions);
     screen.appendChild(intro);
@@ -94,7 +94,7 @@ export function exercise(container, ctx, params) {
     quitBtn.addEventListener('click', () => {
       if (isExam && state.qIndex < round.length && !confirm('לצאת מהמבחן? הציון לא יישמר.')) return;
       stopTimer();
-      ctx.navigate('worldMap', { world: mapWorld });
+      ctx.navigate('levels', { world: mapWorld });
     });
     dots = el('div', 'progress-dots');
     for (let i = 0; i < round.length; i++) dots.appendChild(el('span', 'dot'));
@@ -106,13 +106,6 @@ export function exercise(container, ctx, params) {
 
     qArea = el('div', 'ex-question');
     screen.appendChild(qArea);
-
-    // דמות מלווה בפינה
-    companion = el('div', 'companion');
-    if (profile.character) {
-      companion.innerHTML = profileCharSVG(profile, characterStage(profile.totals.stars), 84);
-    }
-    screen.appendChild(companion);
 
     state.startTime = Date.now();
     if (isExam) {
@@ -138,6 +131,8 @@ export function exercise(container, ctx, params) {
   function renderQuestion() {
     state.attemptedThis = false;
     state.locked = false;
+    state.recorded = false;
+    state.qStart = Date.now();
     updateDots();
     qArea.innerHTML = '';
     const q = round[state.qIndex];
@@ -445,16 +440,26 @@ export function exercise(container, ctx, params) {
   }
 
   // ===== משוב =====
+  // מעקב מיומנויות: נרשם רק הניסיון הראשון בכל שאלה, עם הזמן עד התשובה
+  function recordFirstAttempt(correct) {
+    if (state.recorded) return;
+    state.recorded = true;
+    const q = round[state.qIndex];
+    storage.recordAnswer(ctx.state.profileId, isExam ? q.levelId : level.id, {
+      correct, ms: Date.now() - state.qStart, exam: isExam,
+    });
+  }
+
   function onCorrect() {
     state.locked = true;
     if (!state.attemptedThis) {
       state.streak += 1;
       state.bestStreak = Math.max(state.bestStreak, state.streak);
+      recordFirstAttempt(true);
     }
     state.correct += 1;
     sfx.correct();
     toast(isExam ? '✓' : pick(PRAISE));
-    bounce('bounce');
     setTimeout(advance, isExam ? 650 : 950);
   }
 
@@ -462,6 +467,7 @@ export function exercise(container, ctx, params) {
     if (!state.attemptedThis) {
       state.missed += 1;
       state.streak = 0;
+      recordFirstAttempt(false);
     }
     state.attemptedThis = true;
     sfx.wrong();
@@ -469,14 +475,12 @@ export function exercise(container, ctx, params) {
       // במבחן אין ניסיון נוסף — מראים את התשובה הנכונה וממשיכים
       state.locked = true;
       toast(`✗ התשובה: ${answerText(round[state.qIndex])}`, 'exam-wrong');
-      bounce('wiggle');
       setTimeout(advance, 1700);
       return;
     }
     const msg = pick(RETRY);
     toast(msg);
     if (isAlin) speak(msg);
-    bounce('wiggle');
   }
 
   function advance() {
@@ -491,16 +495,11 @@ export function exercise(container, ctx, params) {
     setTimeout(() => t.remove(), cls ? 1650 : 900);
   }
 
-  function bounce(cls) {
-    companion.classList.remove('bounce', 'wiggle');
-    void companion.offsetWidth; // אתחול האנימציה
-    companion.classList.add(cls);
-  }
-
   // ===== מסך סיום — תרגול =====
   function showResults() {
     const stars = calcStars(state.missed, curId);
-    const result = applyRound(ctx.state.profileId, level.id, stars, state.correct, state.bestStreak, curId);
+    const ms = Date.now() - state.startTime;
+    applyRound(ctx.state.profileId, level.id, stars, state.correct, state.bestStreak, { missed: state.missed, total: round.length, ms });
     const updated = storage.getProfile(ctx.state.profileId);
 
     screen.innerHTML = '';
@@ -525,33 +524,36 @@ export function exercise(container, ctx, params) {
       speak(`כָּל הַכָּבוֹד ${spokenName}! קִבַּלְתְּ ${starWord}!`);
     }
 
-    // מטבעות שהורווחו
-    if (result.coinsEarned > 0 && stars > 0) {
-      res.appendChild(el('div', 'reward-pop', `<span class="remoji">🪙</span> הרווחת ${result.coinsEarned} מטבעות לחנות!`));
-    }
+    res.appendChild(el('div', 'exam-summary',
+      `<b>${round.length - state.missed}</b> מתוך <b>${round.length}</b> נכון בניסיון ראשון &nbsp;·&nbsp; ⏱️ ${fmtMs(ms)}`));
 
-    // מדבקות חדשות
-    for (const s of result.newStickers) {
-      res.appendChild(el('div', 'reward-pop', `<span class="remoji">${s.emoji}</span> מדבקה חדשה: ${s.name}`));
-    }
-
-    // כל שלבי העולם הושלמו — המבחן מחכה
-    if (examConfig(curId) && worldLevels(curId, level.world).every(l => (updated.levels[l.id]?.stars || 0) > 0)
-      && !(updated.exams?.[examId(level.world)]?.best >= examConfig(curId).pass)) {
-      res.appendChild(el('div', 'reward-pop', `<span class="remoji">📝</span> סיימת את כל השלבים — המבחן של העולם מחכה לך!`));
-    }
-
-    // הדמות גדלה!
-    if (result.stageUp && updated.character) {
-      setTimeout(() => evolveOverlay(updated, result.stageUp), 1100);
+    // מה הלאה: השלב הבא / המבחן של העולם
+    const idx = cur.levels.findIndex(l => l.id === level.id);
+    const nextLevel = cur.levels[idx + 1];
+    const nextOpen = nextLevel && nextLevel.world === level.world && isLevelUnlocked(updated, nextLevel, curId);
+    const cfg = examConfig(curId);
+    const worldDone = worldLevels(curId, level.world).every(l => (updated.levels[l.id]?.stars || 0) > 0);
+    const examReady = cfg && worldDone && !examPassed(updated, level.world, curId);
+    if (examReady) {
+      res.appendChild(el('div', 'reward-pop', `<span class="remoji">📝</span> סיימת את כל שלבי העולם — המבחן מחכה לך!`));
     }
 
     const actions = el('div', 'actions');
-    const again = el('button', 'btn primary', '🔄 עוד פעם');
+    const again = el('button', `btn ${stars < 3 ? 'primary' : ''}`, '🔄 עוד פעם');
     again.addEventListener('click', () => ctx.navigate('exercise', { levelId: level.id }));
-    const toMap = el('button', 'btn', '🗺️ למפה');
-    toMap.addEventListener('click', () => ctx.navigate('worldMap', { world: level.world }));
-    actions.append(again, toMap);
+    actions.appendChild(again);
+    if (nextOpen) {
+      const next = el('button', `btn ${stars === 3 ? 'primary' : ''}`, '➡️ השלב הבא');
+      next.addEventListener('click', () => ctx.navigate('exercise', { levelId: nextLevel.id }));
+      actions.appendChild(next);
+    } else if (examReady) {
+      const toExam = el('button', 'btn primary', '📝 למבחן');
+      toExam.addEventListener('click', () => ctx.navigate('exercise', { exam: level.world }));
+      actions.appendChild(toExam);
+    }
+    const toList = el('button', 'btn', '📋 לרשימה');
+    toList.addEventListener('click', () => ctx.navigate('levels', { world: level.world }));
+    actions.appendChild(toList);
     res.appendChild(actions);
 
     container.innerHTML = '';
@@ -589,21 +591,15 @@ export function exercise(container, ctx, params) {
     if (result.isBest && result.attempts > 1 && result.score > 0) {
       res.appendChild(el('div', 'reward-pop', `<span class="remoji">🥇</span> שיא חדש!`));
     }
-    if (result.coinsEarned > 0) {
-      res.appendChild(el('div', 'reward-pop', `<span class="remoji">🪙</span> הרווחת ${result.coinsEarned} מטבעות!`));
-    }
-    for (const s of result.newStickers) {
-      res.appendChild(el('div', 'reward-pop', `<span class="remoji">${s.emoji}</span> מדבקה חדשה: ${s.name}`));
-    }
 
     const actions = el('div', 'actions');
     const again = el('button', 'btn primary', '🔄 שוב');
     again.addEventListener('click', () => ctx.navigate('exercise', { exam: params.exam }));
     const toReport = el('button', 'btn', '📋 תעודה');
     toReport.addEventListener('click', () => ctx.navigate('report', { fromWorld: mapWorld }));
-    const toMap = el('button', 'btn', '🗺️ למפה');
-    toMap.addEventListener('click', () => ctx.navigate('worldMap', { world: mapWorld }));
-    actions.append(again, toReport, toMap);
+    const toList = el('button', 'btn', '📋 לרשימה');
+    toList.addEventListener('click', () => ctx.navigate('levels', { world: mapWorld }));
+    actions.append(again, toReport, toList);
     res.appendChild(actions);
 
     container.innerHTML = '';
