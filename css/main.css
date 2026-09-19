@@ -1149,3 +1149,233 @@ button {
   .obj-group .obj { font-size: 1.9rem; }
   .companion { display: none; }
 }
+
+/* ===== כיתה ג': תחנת מבחן במפה ===== */
+.level-node.exam {
+  width: 86px;
+  height: 86px;
+  background: linear-gradient(135deg, #ffd86f, #ffb340);
+  border: 4px solid #fff;
+  font-size: 1.7rem;
+}
+.level-node.exam .exam-lbl { font-size: 0.8rem; font-weight: 800; line-height: 1; margin-top: 2px; color: var(--purple-dark); }
+.level-node.exam.passed { background: linear-gradient(135deg, #8fe3a8, #3dbb6e); }
+.level-node.exam.passed .exam-lbl { color: #fff; }
+.level-node.exam.locked { background: rgba(255,255,255,0.45); border-color: transparent; }
+.level-node.exam.locked .exam-lbl { color: rgba(58,42,93,0.5); }
+.map-gift {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 4px;
+  font-size: 1rem;
+  padding: 8px 14px;
+  z-index: 3;
+}
+.profile-card .pgrade { font-size: 0.95rem; color: var(--purple); font-weight: 700; margin-top: -4px; }
+
+/* ===== מבחן: פתיח, שעון עצר, משוב ===== */
+.exam-intro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+}
+.exam-title { font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+.exam-rules {
+  list-style: none;
+  margin: 0;
+  padding: 16px 26px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.9;
+  text-align: start;
+  max-width: min(520px, 90vw);
+}
+.exam-timer {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  direction: ltr;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.feedback-toast.exam-wrong {
+  font-size: 1.6rem;
+  background: rgba(58,42,93,0.85);
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 90vw;
+  padding: 10px 22px;
+  border-radius: 18px;
+  animation: popIn 0.3s;
+}
+.answer-card.reveal, .pick-groups .obj-group.reveal { outline: 5px solid var(--good); outline-offset: -2px; animation: starPop 0.4s; }
+.equation .slot.reveal, .answer-slot.reveal { color: var(--good); border-bottom-color: var(--good); }
+.shake { animation: shake 0.4s; }
+
+/* תוצאות מבחן */
+.results { overflow-y: auto; }
+.exam-results { gap: 12px; }
+.score-ring {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  border: 9px solid var(--gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+}
+.score-ring .score-num { font-size: 3.4rem; font-weight: 900; line-height: 1; color: var(--purple-dark); }
+.score-ring .score-lbl { font-size: 1rem; font-weight: 800; }
+.score-ring.perfect { border-color: #ffb340; box-shadow: 0 0 0 6px rgba(255,216,111,0.5), var(--shadow); }
+.score-ring.great, .score-ring.good, .score-ring.pass { border-color: var(--good); }
+.score-ring.fail { border-color: #f5854a; }
+.exam-summary { color: #fff; font-weight: 700; font-size: 1.15rem; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+/* ===== התעודה ===== */
+.report-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+.report-head {
+  display: flex;
+  gap: 10px;
+  width: min(560px, 94vw);
+}
+.report-stat {
+  flex: 1;
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text);
+}
+.report-stat .rs-num { font-size: 1.9rem; font-weight: 900; color: var(--purple-dark); line-height: 1.1; }
+.report-stat .rs-num small { font-size: 1rem; color: #8a7ab0; }
+.report-stat .rs-lbl { font-size: 0.85rem; font-weight: 700; }
+.report-row {
+  width: min(560px, 94vw);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  text-align: start;
+  color: var(--text);
+  transition: transform 0.1s;
+}
+.report-row:active { transform: scale(0.98); }
+.report-row.locked { background: rgba(255,255,255,0.5); box-shadow: none; }
+.report-row .r-icon { font-size: 2rem; }
+.report-row .r-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.report-row .r-name { font-size: 1.15rem; font-weight: 800; }
+.report-row .r-sub { font-size: 0.9rem; font-weight: 600; color: #6c5a94; }
+.report-row.passed .r-sub { color: #1f8a4d; }
+.report-row.ready .r-sub { color: #b0731a; }
+.r-score, .fe-score {
+  min-width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+  background: var(--purple);
+  flex-shrink: 0;
+}
+.r-score.perfect { background: linear-gradient(135deg, #ffd86f, #ffb340); color: var(--purple-dark); }
+.r-score.great, .r-score.good, .r-score.pass { background: var(--good); }
+.r-score.fail { background: #f5854a; }
+.r-score.none { background: rgba(124,77,204,0.15); }
+.final-exam {
+  width: min(560px, 94vw);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #ffd86f, #ffb340);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+  text-align: start;
+  color: var(--purple-dark);
+  margin-top: 6px;
+}
+.final-exam.locked { background: rgba(255,255,255,0.5); box-shadow: none; color: rgba(58,42,93,0.6); }
+.final-exam.passed { background: linear-gradient(135deg, #8fe3a8, #3dbb6e); color: #fff; }
+.final-exam .fe-icon { font-size: 2.4rem; }
+.final-exam .fe-main { flex: 1; display: flex; flex-direction: column; }
+.final-exam .fe-name { font-size: 1.3rem; font-weight: 900; }
+.final-exam .fe-sub { font-size: 0.9rem; font-weight: 700; }
+.final-exam .fe-score { background: rgba(58,42,93,0.85); }
+.report-hint { color: #fff; font-weight: 700; font-size: 0.95rem; text-shadow: 0 1px 4px rgba(0,0,0,0.3); text-align: center; padding: 0 12px; }
+
+/* ===== סוגי שאלות של כיתה ג' ===== */
+.equation.long { font-size: 2.2rem; gap: 10px; padding: 14px 20px; flex-wrap: wrap; justify-content: center; }
+.equation .paren { color: #8a7ab0; }
+.equation .label { font-size: 1.3rem; font-weight: 800; color: var(--purple); direction: rtl; }
+.equation .slot.active, .answer-slot.active { background: #f3ecff; border-radius: 10px; box-shadow: 0 0 0 3px var(--gold); }
+.frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; vertical-align: middle; font-weight: 900; color: var(--purple-dark); }
+.frac .frac-n { border-bottom: 4px solid var(--purple-dark); padding: 0 8px; }
+.frac .frac-d { padding: 0 8px; }
+.answer-card.frac-card { min-width: 96px; font-size: 1.9rem; align-items: center; }
+.answer-card.frac-card .frac .frac-n { border-bottom-width: 3px; }
+.frac-of { display: flex; align-items: center; gap: 16px; font-size: 2.2rem; }
+.frac-of .of-word { font-weight: 800; color: var(--purple); font-size: 1.6rem; }
+.compare-box {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 30px;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--text);
+}
+.compare-box .cmp-slot { min-width: 60px; text-align: center; border-bottom: 5px solid var(--gold); color: var(--purple-dark); }
+.answer-card.sign-card { min-width: 96px; }
+.answer-card .sign-text { font-size: 3rem; font-weight: 900; color: var(--purple-dark); line-height: 1; direction: ltr; }
+.answer-card.time-card { min-width: 120px; }
+.answer-card .time-text { font-size: 2.2rem; font-weight: 900; color: var(--purple-dark); direction: ltr; font-variant-numeric: tabular-nums; }
+.seq-row.ltr { direction: ltr; }
+.seq-row.ltr .seq-item { font-size: 2.2rem; font-weight: 900; color: var(--purple-dark); }
+.clock-box { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 18px; }
+.clock-box .digital { direction: ltr; font-size: 1.5rem; font-weight: 900; color: var(--purple-dark); font-variant-numeric: tabular-nums; }
+.clocks-row { display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.clocks-sep { color: #fff; font-weight: 900; font-size: 1.5rem; text-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+.sample-box svg { display: block; max-width: 86vw; height: auto; }
+
+@media (max-height: 640px) {
+  .clock-box svg { width: 140px; height: 140px; }
+  .clocks-row .clock-box svg { width: 110px; height: 110px; }
+  .sample-box .frac-svg, .sample-box .shape-svg { width: 130px; height: auto; }
+  .equation.long { font-size: 1.8rem; }
+  .compare-box { font-size: 2.2rem; }
+}

@@ -1,19 +1,18 @@
 // נקודת הכניסה: ניתוב מסכים, שחרור קול במחווה ראשונה, רישום service worker
 import { profileSelect } from './screens/profileSelect.js';
-import { subjectSelect } from './screens/subjectSelect.js';
 import { worldMap } from './screens/worldMap.js';
 import { exercise } from './screens/exercise.js';
 import { prizes } from './screens/prizes.js';
 import { character } from './screens/character.js';
 import { shop } from './screens/shop.js';
 import { parent } from './screens/parent.js';
-import { memory } from './screens/memory.js';
 import { collection } from './screens/collection.js';
 import { room } from './screens/room.js';
+import { report } from './screens/report.js';
 import { unlock } from './audio.js';
 import { getProfile } from './storage.js';
 
-const screens = { profileSelect, subjectSelect, worldMap, exercise, prizes, character, shop, parent, memory, collection, room };
+const screens = { profileSelect, worldMap, exercise, prizes, character, shop, parent, collection, room, report };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },
@@ -29,7 +28,7 @@ function navigate(name, params = {}) {
 // רקע קנוי מהחנות גובר על ערכת העולם
 function applyBg(screenName) {
   const pid = ctx.state.profileId;
-  const noBg = screenName === 'profileSelect' || screenName === 'subjectSelect';
+  const noBg = screenName === 'profileSelect';
   const bg = !noBg && pid ? getProfile(pid).equipped?.bg : null;
   if (bg) document.body.dataset.bg = bg;
   else delete document.body.dataset.bg;

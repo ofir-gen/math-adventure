@@ -19,6 +19,7 @@ function emptyProfile(name, ttsName, curriculum) {
     curriculum,
     character: null, // { type: 'bunny' | 'cat' | 'dragon' }
     levels: {},      // levelId -> { stars, attempts }
+    exams: {},       // examId -> { best, attempts, history: [{ score, correct, total, ms, date }] }
     stickers: [],
     coins: 0,        // מטבעות לחנות — הכוכבים לעולם לא יורדים
     owned: [],       // פריטי חנות שנקנו
@@ -53,6 +54,7 @@ function load() {
       if (!Array.isArray(base.profiles[id].owned)) base.profiles[id].owned = [];
       if (typeof base.profiles[id].equipped !== 'object' || !base.profiles[id].equipped) base.profiles[id].equipped = {};
       if (typeof base.profiles[id].room !== 'object' || !base.profiles[id].room) base.profiles[id].room = {};
+      if (typeof base.profiles[id].exams !== 'object' || !base.profiles[id].exams) base.profiles[id].exams = {};
       const carDef = { fed: 100, clean: 100, energy: 100, happy: 100, last: 0 };
       base.profiles[id].care = { ...carDef, ...(parsed.profiles?.[id]?.care || {}) };
       // מיגרציה: מדבקות ספציפיות-לנושא קיבלו קידומת קוריקולום (כדי לא להתנגש בין נושאים)
@@ -190,6 +192,20 @@ export function recordRound(profileId, levelId, stars, correctCount, bestStreakI
   p.totals.stars = Object.values(p.levels).reduce((s, l) => s + l.stars, 0);
   save();
   return lvl;
+}
+
+// רישום מבחן שהושלם; שומר את הציון הטוב ביותר וההיסטוריה האחרונה
+export function recordExam(profileId, examId, { score, correct, total, ms }) {
+  const p = data.profiles[profileId];
+  const rec = p.exams[examId] || { best: 0, attempts: 0, history: [] };
+  rec.attempts += 1;
+  rec.best = Math.max(rec.best, score);
+  rec.last = score;
+  rec.history.push({ score, correct, total, ms, date: Date.now() });
+  if (rec.history.length > 6) rec.history.shift();
+  p.exams[examId] = rec;
+  save();
+  return rec;
 }
 
 export function addCoins(profileId, amount) {

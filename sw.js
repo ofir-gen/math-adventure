@@ -1,6 +1,6 @@
 // service worker: קדם-אחסון של כל קבצי המשחק — עובד אופליין לגמרי.
 // בכל עדכון לאפליקציה יש להעלות את מספר הגרסה כאן:
-const CACHE = 'math-adventure-v25';
+const CACHE = 'math-adventure-v26';
 
 const ASSETS = [
   './',
@@ -13,28 +13,23 @@ const ASSETS = [
   './js/curriculum/index.js',
   './js/curriculum/noya.js',
   './js/curriculum/alin.js',
-  './js/curriculum/memNoya.js',
-  './js/curriculum/memAlin.js',
-  './js/curriculum/hebNoya.js',
-  './js/curriculum/hebAlin.js',
   './js/engine/generator.js',
   './js/engine/rewards.js',
   './js/engine/shopCatalog.js',
-  './js/engine/hebrewContent.js',
   './js/engine/careData.js',
   './js/screens/profileSelect.js',
-  './js/screens/subjectSelect.js',
   './js/screens/worldMap.js',
   './js/screens/exercise.js',
   './js/screens/prizes.js',
   './js/screens/character.js',
   './js/screens/shop.js',
   './js/screens/parent.js',
-  './js/screens/memory.js',
   './js/screens/collection.js',
   './js/screens/room.js',
+  './js/screens/report.js',
   './js/ui/components.js',
   './js/ui/character-svg.js',
+  './js/ui/math-svg.js',
   './js/ui/confetti.js',
   './js/ui/flags.js',
   './js/ui/celebrate.js',
