@@ -2,30 +2,34 @@
 <html dir="rtl" lang="he">
 <head>
 <meta charset="utf-8">
-<title>בדיקות גנרטור — העולם של נויה ואלין</title>
+<title>בדיקות גנרטור — הרפתקת המתמטיקה</title>
 <style>
   body { font-family: system-ui; padding: 20px; background: #f5f2fb; }
   .pass { color: #1f8a4d; }
   .fail { color: #c43e3e; font-weight: bold; }
   pre { background: #fff; padding: 8px; border-radius: 8px; }
+  h3 { margin: 18px 0 6px; }
 </style>
 </head>
 <body>
 <h1>בדיקות גנרטור (1,000 דגימות לכל שלב)</h1>
+<p>אפשר להריץ גם מהטרמינל: <code>node tests/run.mjs</code></p>
 <div id="out">רץ...</div>
 <script type="module">
-import { levels as noyaLevels } from './js/curriculum/noya.js';
+import { levels as noyaLevels, worlds as noyaWorlds, meta as noyaMeta } from './js/curriculum/noya.js';
 import { levels as alinLevels } from './js/curriculum/alin.js';
-import { makeQuestion } from './js/engine/generator.js';
+import { checkLevel, checkExam } from './tests/checks.js';
 
 const out = document.getElementById('out');
 out.innerHTML = '';
 const N = 1000;
 let failures = 0;
 
-const carries = (a, b) => (a % 10) + (b % 10) >= 10;
-const borrows = (a, b) => (a % 10) < (b % 10);
-
+function section(title) {
+  const h = document.createElement('h3');
+  h.textContent = title;
+  out.appendChild(h);
+}
 function report(id, title, errors) {
   const div = document.createElement('div');
   if (errors.length === 0) {
@@ -39,116 +43,18 @@ function report(id, title, errors) {
   out.appendChild(div);
 }
 
-// ===== שלבי נויה: בדיקת אילוצי משוואות =====
-for (const level of noyaLevels) {
-  const errors = [];
-  for (let i = 0; i < N; i++) {
-    const q = makeQuestion(level);
-    try {
-      if (q.mode !== 'keypad') throw `mode=${q.mode}`;
-      if (q.answer < 0) throw `תשובה שלילית: ${q.answer}`;
-      if (!Number.isInteger(q.answer)) throw `תשובה לא שלמה: ${q.answer}`;
+section('נויה — כיתה ג׳');
+for (const level of noyaLevels) report(level.id, level.title, checkLevel(level, N));
 
-      // בעיה מילולית: בדיקת תקינות הסיפור והטווח
-      if (level.op === 'word') {
-        if (!q.story || q.story.length < 15) throw `סיפור חסר: ${q.story}`;
-        if (q.story.includes('undefined') || q.story.includes('NaN')) throw `סיפור פגום: ${q.story}`;
-        if (level.result?.max !== undefined && q.answer > level.result.max) throw `תשובה ${q.answer} > ${level.result.max}`;
-        if (!q.tts) throw 'אין הקראה';
-        continue;
-      }
-
-      const ops = q.parts.filter(p => p === '+' || p === '−');
-      const slotIdx = q.parts.indexOf('?');
-      if (slotIdx < 0) throw 'אין סלוט ?';
-
-      // שחזור המשוואה המלאה והצבת התשובה
-      const full = q.parts.map(p => p === '?' ? q.answer : p);
-      const eqIdx = full.indexOf('=');
-      const left = full.slice(0, eqIdx);
-      const right = full[eqIdx + 1];
-      let value = left[0];
-      for (let j = 1; j < left.length; j += 2) {
-        const op = left[j], operand = left[j + 1];
-        if (op === '+') value += operand;
-        else if (op === '−') value -= operand;
-        else if (op === '×') value *= operand;
-        else if (op === ':') value /= operand;
-        else throw `אופרטור לא מוכר: ${op}`;
-      }
-      if (value !== right) throw `משוואה לא נכונה: ${full.join(' ')}`;
-
-      // כפל/חילוק: בדיקת לוחות ושלמות
-      if (level.op === 'mul' || level.op === 'mulMissing') {
-        const factors = [full[0], full[2]];
-        if (!factors.some(f => level.tables.includes(f))) throw `לוח לא ברשימה: ${full.join(' ')}`;
-      }
-      if (level.op === 'div' || level.op === 'divMissing') {
-        if (full[0] % full[2] !== 0) throw `חילוק עם שארית: ${full.join(' ')}`;
-        // בשני המצבים full[2] הוא המחלק (במספר חסר — הוא התשובה)
-        if (!level.divisors.includes(full[2])) throw `מחלק לא ברשימה: ${full.join(' ')}`;
-      }
-
-      // אילוצי תוצאה — חלים על תוצאת הפעולה (צד שווה)
-      const result = q.parts[q.parts.length - 1] === '?' ? q.answer : full[full.length - 1];
-      if (level.result?.max !== undefined && result > level.result.max) throw `תוצאה ${result} > ${level.result.max}`;
-      if (level.result?.min !== undefined && q.parts[q.parts.length - 1] === '?' && result < level.result.min) throw `תוצאה ${result} < ${level.result.min}`;
-
-      // אילוצי המרה/פריטה — רק לתרגילים עם שני אופרנדים והאופ הקבוע
-      if ((level.op === 'add' || level.op === 'sub') && level.regroup && level.regroup !== 'any' && ops.length === 1) {
-        const [x, , y] = [full[0], full[1], full[2]];
-        const has = full[1] === '+' ? carries(x, y) : borrows(x, y);
-        if (level.regroup === 'required' && !has) throw `חסרה המרה: ${full.join(' ')}`;
-        if (level.regroup === 'forbidden' && has) throw `המרה אסורה: ${full.join(' ')}`;
-      }
-    } catch (err) {
-      errors.push(String(err));
-      if (errors.length >= 5) break;
-    }
-  }
-  report(level.id, level.title, errors);
+section('מבחנים');
+for (const w of noyaWorlds) {
+  const wl = noyaLevels.filter(l => l.world === w.n);
+  report(`exam:${w.n}`, `מבחן ${w.name}`, checkExam(wl, noyaMeta.exam.questions));
 }
+report('exam:final', 'המבחן הגדול', checkExam(noyaLevels, noyaMeta.exam.finalQuestions));
 
-// ===== שלבי אלין: תקינות מבנה ותשובות =====
-for (const level of alinLevels) {
-  const errors = [];
-  for (let i = 0; i < N; i++) {
-    const q = makeQuestion(level);
-    try {
-      if (!q.tts) throw 'אין טקסט הקראה';
-      if (q.mode === 'cards') {
-        const kind = q.cards.kind || 'count';
-        const list = kind === 'emoji' ? q.cards.emojis
-          : kind === 'digit' ? q.cards.digits
-          : kind === 'emojiSize' ? q.cards.sizes
-          : q.cards.counts;
-        const minCards = kind === 'emojiSize' ? 2 : 3;
-        if (!Array.isArray(list) || list.length < minCards || list.length > 4) throw `מספר כרטיסים: ${list && list.length}`;
-        if (kind !== 'emoji' && new Set(list).size !== list.length) throw `כרטיסים כפולים: ${list}`;
-        if (q.cards.correctIndex < 0 || q.cards.correctIndex >= list.length) throw 'אינדקס נכון שגוי';
-        if (list.some(c => c === undefined || c === null)) throw `כרטיס ריק: ${list}`;
-        if (kind === 'count' || kind === 'digit') { if (list.some(c => c < 0 || c > 12)) throw `מספר לא תקין: ${list}`; }
-        if (kind === 'emojiSize' && !q.cards.emoji) throw 'אין אימוג׳י לגודל';
-      } else if (q.mode === 'tap') {
-        if (q.target >= q.total) throw `יעד ${q.target} >= סהכ ${q.total}`;
-        if (q.total > 9) throw `יותר מדי עצמים: ${q.total}`;
-      } else if (q.mode === 'pickGroup') {
-        if (q.groups.length < 2) throw `מעט קבוצות: ${q.groups}`;
-        if (new Set(q.groups).size !== q.groups.length) throw `קבוצות כפולות: ${q.groups}`;
-        if (q.correctIndex < 0 || q.correctIndex >= q.groups.length) throw `אינדקס שגוי: ${q.correctIndex}`;
-      } else if (q.mode === 'yesNo') {
-        const [g1, g2] = q.groupsDisplay;
-        if ((g1.count === g2.count) !== q.answer) throw `תשובה לא תואמת: ${g1.count},${g2.count} → ${q.answer}`;
-      } else {
-        throw `mode לא צפוי: ${q.mode}`;
-      }
-    } catch (err) {
-      errors.push(String(err));
-      if (errors.length >= 5) break;
-    }
-  }
-  report(level.id, level.title, errors);
-}
+section('אלין — גיל הגן');
+for (const level of alinLevels) report(level.id, level.title, checkLevel(level, N));
 
 const summary = document.createElement('h2');
 summary.className = failures ? 'fail' : 'pass';

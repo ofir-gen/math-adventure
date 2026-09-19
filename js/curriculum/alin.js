@@ -4,7 +4,7 @@
 // layout: row | scatter | rows5
 // כרטיסי תשובה: ספרה גדולה + נקודות לספירה; digitsOnly: ספרה בלבד (שלבים אחרונים)
 
-export const meta = { id: 'alin', questionsPerRound: 8 };
+export const meta = { id: 'alin', questionsPerRound: 8, grade: 'גיל הגן' };
 
 export const worlds = [
   { n: 1, name: 'גן החיות', icon: '🦁', theme: 'zoo' },

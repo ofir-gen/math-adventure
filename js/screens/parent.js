@@ -1,6 +1,7 @@
 // אזור הורים: גיבוי והעברת התקדמות בין מכשירים (ייצוא/ייבוא קוד)
 import { el, topbarEl } from '../ui/components.js';
 import { getCurriculum } from '../curriculum/index.js';
+import { examConfig, examId, examRecord } from '../engine/rewards.js';
 import * as storage from '../storage.js';
 import { sfx, testVoice } from '../audio.js';
 
@@ -22,9 +23,18 @@ export function parent(container, ctx) {
   for (const id of ['noya', 'alin']) {
     const p = storage.getProfile(id);
     const total = getCurriculum(p.curriculum).levels.length;
-    const done = Object.values(p.levels).filter(l => l.stars > 0).length;
+    const cur = getCurriculum(p.curriculum);
+    const done = cur.levels.filter(l => (p.levels[l.id]?.stars || 0) > 0).length;
+    let exams = '';
+    const cfg = examConfig(p.curriculum);
+    if (cfg) {
+      const recs = cur.worlds.map(w => examRecord(p, examId(w.n))).filter(Boolean);
+      const passed = recs.filter(r => r.best >= cfg.pass).length;
+      const avg = recs.length ? Math.round(recs.reduce((s, r) => s + r.best, 0) / recs.length) : null;
+      exams = ` · 📝 מבחנים: ${passed}/${cur.worlds.length} עברו${avg !== null ? ` (ממוצע ${avg})` : ''}`;
+    }
     summary.appendChild(el('div', 'psum-row',
-      `<b>${p.name}</b> — ⭐ ${p.totals.stars} כוכבים · ${done}/${total} שלבים · 🪙 ${p.coins}`));
+      `<b>${p.name}</b> (${cur.meta?.grade || ''}) — ⭐ ${p.totals.stars} כוכבים · ${done}/${total} שלבים · 🪙 ${p.coins}${exams}`));
   }
   scroll.appendChild(summary);
 

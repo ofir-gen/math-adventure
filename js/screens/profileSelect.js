@@ -2,6 +2,7 @@
 import { el } from '../ui/components.js';
 import { characterSVG, profileCharSVG } from '../ui/character-svg.js';
 import { CHARACTERS, characterStage } from '../engine/rewards.js';
+import { getCurriculum } from '../curriculum/index.js';
 import * as storage from '../storage.js';
 import { speak, sfx } from '../audio.js';
 
@@ -9,7 +10,7 @@ export function profileSelect(container, ctx) {
   document.body.dataset.theme = 'home';
   const screen = el('div', 'screen profile-screen');
 
-  screen.appendChild(el('div', 'app-logo', 'העולם של נויה ואלין 🌈<span class="sub">מי משחקת עכשיו?</span>'));
+  screen.appendChild(el('div', 'app-logo', 'הרפתקת המתמטיקה 🔢<span class="sub">מי משחקת עכשיו?</span>'));
 
   const cards = el('div', 'profile-cards');
   for (const id of ['noya', 'alin']) {
@@ -22,13 +23,14 @@ export function profileSelect(container, ctx) {
     card.innerHTML = `
       <div class="avatar">${avatar}</div>
       <div class="pname">${p.name}</div>
+      <div class="pgrade">${getCurriculum(p.curriculum).meta?.grade || ''}</div>
       <div class="pstars">⭐ ${p.totals.stars}</div>`;
     card.addEventListener('click', () => {
       sfx.tap();
       if (!p.character) showCharacterPick(container, ctx, id);
       else {
         ctx.state.profileId = id;
-        ctx.navigate('subjectSelect');
+        ctx.navigate('worldMap');
       }
     });
     cards.appendChild(card);
@@ -59,7 +61,7 @@ function showCharacterPick(container, ctx, profileId) {
       sfx.fanfare();
       speak(`${c.tn || c.name} ${c.g === 'f' ? 'מִצְטָרֶפֶת' : 'מִצְטָרֵף'} אֵלַיִךְ לְהַרְפַּתְקָה!`);
       ctx.state.profileId = profileId;
-      ctx.navigate('subjectSelect');
+      ctx.navigate('worldMap');
     });
     picks.appendChild(opt);
   }
