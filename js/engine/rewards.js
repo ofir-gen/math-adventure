@@ -1,5 +1,5 @@
-// כוכבים, פתיחת שלבים ועולמות, מבחנים, מדבקות ושלבי גדילה של הדמות
-import { getCurriculum, curricula, worldLevels } from '../curriculum/index.js';
+// כוכבים, פתיחת שלבים ועולמות, מבחנים, ומדדי שליטה (חוזקות/חולשות + תרגול מומלץ)
+import { getCurriculum, worldLevels } from '../curriculum/index.js';
 import * as storage from '../storage.js';
 
 // ===== כוכבים =====
@@ -72,162 +72,100 @@ export function isWorldUnlocked(profile, worldN, curriculumId) {
   return prevDone && examPassed(profile, worldN - 1, curriculumId);
 }
 
-// ===== דמות מלווה =====
-// g = מין דקדוקי של הדמות, לטקסטים נכונים (פנדה גדלה, חד-קרן גדל)
-export const CHARACTERS = [
-  { type: 'bunny', name: 'ארנבון', tn: 'אַרְנָבוֹן', g: 'm', starter: true },
-  { type: 'cat', name: 'חתלתול', tn: 'חֲתַלְתּוּל', g: 'm', starter: true },
-  { type: 'dragon', name: 'דרקונצ\'יק', tn: 'דְּרָקוֹנְצִ\'יק', g: 'm', starter: true },
-  // דמויות פרימיום — נקנות בחנות בלבד
-  { type: 'unicorn', name: 'חד-קרן', tn: 'חַד-קֶרֶן', g: 'm' },
-  { type: 'panda', name: 'פנדה', tn: 'פַּנְדָּה', g: 'f' },
-  { type: 'puppy', name: 'כלבלב', tn: 'כְּלַבְלַב', g: 'm' },
-  { type: 'ladybug', name: 'חיפושית', tn: 'חִפּוּשִׁית', g: 'f' },
-];
-
-export const charByType = type => CHARACTERS.find(c => c.type === type);
-
-export const STAGE_THRESHOLDS = [0, 8, 18, 32, 48];
-export const STAGE_NAMES = ['תינוק', 'קטנטן', 'ילד', 'גדול', 'מלך!'];
-export const STAGE_NAMES_F = ['תינוקת', 'קטנטנה', 'ילדה', 'גדולה', 'מלכה!'];
-
-export function stageName(stage, g) {
-  return (g === 'f' ? STAGE_NAMES_F : STAGE_NAMES)[stage - 1];
-}
-
-export function characterStage(totalStars) {
-  let stage = 1;
-  for (let i = 0; i < STAGE_THRESHOLDS.length; i++) {
-    if (totalStars >= STAGE_THRESHOLDS[i]) stage = i + 1;
-  }
-  return stage;
-}
-
-export function nextStageInfo(totalStars) {
-  const stage = characterStage(totalStars);
-  if (stage >= 5) return null;
-  const prev = STAGE_THRESHOLDS[stage - 1];
-  const next = STAGE_THRESHOLDS[stage];
-  return { stage, next, progress: (totalStars - prev) / (next - prev) };
-}
-
-// ===== קטלוג מדבקות =====
-export function stickerCatalog(curriculumId) {
-  const cur = getCurriculum(curriculumId);
-  const allLevels = cur.levels;
-  // מדבקות ספציפיות-לקוריקולום — מזהה מתוייג (עם meta.tag כשהתוכן הוחלף, כדי לא לרשת הישגים ישנים)
-  const px = id => `${curriculumId}:${cur.meta?.tag ? cur.meta.tag + ':' : ''}${id}`;
-  const ids = allLevels.map(l => l.id);
-  const list = [
-    { id: px('first_level'), emoji: '🌟', name: 'הצעד הראשון',
-      test: p => ids.some(id => (p.levels[id]?.stars || 0) > 0) },
-    { id: px('first_perfect'), emoji: '💎', name: 'שלושה כוכבים!',
-      test: p => ids.some(id => (p.levels[id]?.stars || 0) === 3) },
-    // מדבקות גלובליות (לפי הסכומים הכלליים)
-    { id: 'streak_10', emoji: '🔥', name: '10 ברצף!',
-      test: p => p.totals.bestStreak >= 10 },
-    { id: 'correct_100', emoji: '💯', name: '100 תשובות',
-      test: p => p.totals.correct >= 100 },
-    { id: 'correct_500', emoji: '🏆', name: '500 תשובות',
-      test: p => p.totals.correct >= 500 },
-  ];
-
-  for (const w of cur.worlds) {
-    const wl = allLevels.filter(l => l.world === w.n);
-    list.push({
-      id: px(`world_done_${w.n}`), emoji: w.icon, name: `סיימתי את ${w.name}`,
-      test: p => wl.every(l => (p.levels[l.id]?.stars || 0) > 0),
-    });
-    list.push({
-      id: px(`world_perfect_${w.n}`), emoji: '🏅', name: `${w.name} מושלם!`,
-      test: p => wl.every(l => (p.levels[l.id]?.stars || 0) === 3),
-    });
-  }
-
-  // מדבקות מבחנים
-  const exam = cur.meta?.exam;
-  if (exam) {
-    const passedCount = p => cur.worlds.filter(w => (examRecord(p, examId(w.n))?.best || 0) >= exam.pass).length;
-    list.push(
-      { id: px('exam_first'), emoji: '📝', name: 'המבחן הראשון שלי',
-        test: p => Object.keys(p.exams || {}).length > 0 },
-      { id: px('exam_pass'), emoji: '🎓', name: 'עברתי מבחן!',
-        test: p => passedCount(p) >= 1 },
-      { id: px('exam_perfect'), emoji: '💯', name: '100 במבחן!',
-        test: p => Object.values(p.exams || {}).some(r => r.best >= 100) },
-      { id: px('exam_half'), emoji: '📚', name: 'חצי מהמבחנים',
-        test: p => passedCount(p) >= Math.ceil(cur.worlds.length / 2) },
-      { id: px('exam_all'), emoji: '👩‍🎓', name: 'עברתי את כל המבחנים!',
-        test: p => passedCount(p) >= cur.worlds.length },
-      { id: px('exam_final'), emoji: '🏆', name: 'המבחן הגדול!',
-        test: p => (examRecord(p, FINAL_EXAM)?.best || 0) >= exam.pass },
-    );
-  }
-
-  const maxStars = allLevels.length * 3;
-  const milestones = cur.meta?.lenient
-    ? [5, 10, 20, 30, 45]
-    : [5, 10, 20, 30, 45, 60, 90, 120, 150, 180].filter(m => m <= maxStars);
-  const mEmoji = ['⭐', '✨', '💫', '🌠', '🎇', '👑', '🌈', '🔮', '🏆', '💎', '🐞'];
-  milestones.forEach((m, i) => {
-    list.push({
-      id: `stars_${m}`, emoji: mEmoji[i], name: `${m} כוכבים`,
-      test: p => p.totals.stars >= m,
-    });
-  });
-
-  return list;
-}
-
-// אימוג'י של כל המדבקות שהושגו — למדף הגביעים בחדר
-export function earnedTrophyEmojis(profile) {
-  const map = {};
-  for (const curId of Object.keys(curricula)) {
-    for (const s of stickerCatalog(curId)) map[s.id] = s.emoji;
-  }
-  return profile.stickers.map(id => map[id]).filter(Boolean);
-}
-
-function grantNewStickers(profileId, curriculumId) {
-  const after = storage.getProfile(profileId);
-  const catalog = stickerCatalog(curriculumId || after.curriculum);
-  const newStickers = catalog.filter(s => !after.stickers.includes(s.id) && s.test(after));
-  if (newStickers.length) storage.addStickers(profileId, newStickers.map(s => s.id));
-  return newStickers;
-}
-
-// ===== החלת תוצאות סבב: עדכון אחסון + איסוף תגמולים חדשים =====
-export function applyRound(profileId, levelId, stars, correctCount, bestStreakInRound, curriculumId) {
-  const before = storage.getProfile(profileId);
-  const stageBefore = characterStage(before.totals.stars);
-
-  storage.recordRound(profileId, levelId, stars, correctCount, bestStreakInRound);
-
-  // מטבעות לחנות: מטבע לכל תשובה נכונה + 5 לכל כוכב
-  const coinsEarned = correctCount + stars * 5;
-  storage.addCoins(profileId, coinsEarned);
-
-  const after = storage.getProfile(profileId);
-  const stageAfter = characterStage(after.totals.stars);
-  const newStickers = grantNewStickers(profileId, curriculumId);
-
+// ===== מדדי שליטה — הבסיס לדוח ולתרגול המומלץ =====
+// מאחד תרגול ומבחנים: asked/right/ms כוללים, ודיוק (acc) 0..1
+export function mastery(profile, levelId) {
+  const s = profile.skills?.[levelId];
+  if (!s) return { asked: 0, right: 0, wrong: 0, acc: null, avgMs: null, last: 0, practice: 0, exam: 0 };
+  const asked = s.asked + s.examAsked;
+  const right = s.right + s.examRight;
+  const ms = s.ms + s.examMs;
   return {
-    newStickers,
-    stageUp: stageAfter > stageBefore ? stageAfter : null,
-    totalStars: after.totals.stars,
-    coinsEarned,
+    asked, right, wrong: asked - right,
+    acc: asked ? right / asked : null,
+    avgMs: asked ? ms / asked : null,
+    last: s.last, practice: s.asked, exam: s.examAsked,
   };
 }
 
+// סטטוס מיומנות לדוח: new | developing | weak | ok | strong
+export const STATUS = {
+  new: { key: 'new', label: 'עוד לא נלמד', emoji: '⬜', cls: 'new' },
+  developing: { key: 'developing', label: 'בתהליך', emoji: '🌱', cls: 'developing' },
+  weak: { key: 'weak', label: 'לתרגול', emoji: '⚠️', cls: 'weak' },
+  ok: { key: 'ok', label: 'בסדר', emoji: '👍', cls: 'ok' },
+  strong: { key: 'strong', label: 'חוזק', emoji: '💪', cls: 'strong' },
+};
+export const MIN_ASKED = 6; // מתחת לזה אין מספיק נתונים להכריע
+
+export function skillStatus(m) {
+  if (!m.asked) return STATUS.new;
+  if (m.asked < MIN_ASKED) return STATUS.developing;
+  if (m.acc >= 0.9 && m.asked >= 12) return STATUS.strong;
+  if (m.acc >= 0.9) return STATUS.ok;
+  if (m.acc >= 0.75) return STATUS.ok;
+  return STATUS.weak;
+}
+
+// דיוק "מוחלק" — מוריד את משקל דגימות בודדות: (right+2)/(asked+4)
+const smoothAcc = m => (m.right + 2) / (m.asked + 4);
+
+// תרגול מומלץ: השלב הפתוח החלש ביותר; אם אין חולשה — השלב הפתוח הבא שעוד לא הושלם ב-3 כוכבים;
+// אחרת — השלב שתורגל לפני הזמן הרב ביותר (שימור)
+export function recommendLevel(profile, curriculumId) {
+  const cur = getCurriculum(curriculumId);
+  const open = cur.levels.filter(l => isLevelUnlocked(profile, l, curriculumId));
+  if (!open.length) return null;
+
+  const withData = open.map(l => ({ l, m: mastery(profile, l.id) })).filter(x => x.m.asked >= MIN_ASKED);
+  const weakest = withData.filter(x => smoothAcc(x.m) < 0.82).sort((a, b) => smoothAcc(a.m) - smoothAcc(b.m))[0];
+  if (weakest) {
+    return { level: weakest.l, reason: 'weak', text: `דיוק ${Math.round(weakest.m.acc * 100)}% — כאן כדאי להתחזק`, m: weakest.m };
+  }
+
+  const unmastered = open.find(l => (profile.levels[l.id]?.stars || 0) < 3);
+  if (unmastered) {
+    const started = (profile.levels[unmastered.id]?.attempts || 0) > 0;
+    return { level: unmastered, reason: 'next', text: started ? 'עוד לא 3 כוכבים — בואי נשלים' : 'השלב הבא בדרך', m: mastery(profile, unmastered.id) };
+  }
+
+  const stale = open.map(l => ({ l, m: mastery(profile, l.id) })).sort((a, b) => a.m.last - b.m.last)[0];
+  return { level: stale.l, reason: 'review', text: 'חזרה קטנה כדי לא לשכוח', m: stale.m };
+}
+
+// ===== סיכומים לדוח =====
+export function worldSummary(profile, curriculumId, worldN) {
+  const levels = worldLevels(curriculumId, worldN);
+  let asked = 0, right = 0, ms = 0, stars = 0;
+  for (const l of levels) {
+    const m = mastery(profile, l.id);
+    asked += m.asked; right += m.right; ms += (m.avgMs || 0) * m.asked;
+    stars += profile.levels[l.id]?.stars || 0;
+  }
+  return { asked, right, acc: asked ? right / asked : null, avgMs: asked ? ms / asked : null, stars, maxStars: levels.length * 3, levels };
+}
+
+// חוזקות וחולשות מסודרות: top/bottom לפי דיוק, רק שלבים עם מספיק נתונים
+export function strengthsAndWeaknesses(profile, curriculumId, count = 3) {
+  const cur = getCurriculum(curriculumId);
+  const rated = cur.levels.map(l => ({ level: l, m: mastery(profile, l.id) })).filter(x => x.m.asked >= MIN_ASKED);
+  const byAcc = [...rated].sort((a, b) => a.m.acc - b.m.acc || b.m.asked - a.m.asked);
+  const weaknesses = byAcc.filter(x => x.m.acc < 0.8).slice(0, count);
+  const strengths = [...rated].sort((a, b) => b.m.acc - a.m.acc || b.m.asked - a.m.asked).filter(x => x.m.acc >= 0.85).slice(0, count);
+  return { strengths, weaknesses, rated: rated.length };
+}
+
+// ===== החלת תוצאות סבב =====
+export function applyRound(profileId, levelId, stars, correctCount, bestStreakInRound, extra) {
+  const lvl = storage.recordRound(profileId, levelId, stars, correctCount, bestStreakInRound, extra);
+  return { stars: lvl.stars, attempts: lvl.attempts, totalStars: storage.getProfile(profileId).totals.stars };
+}
+
 // ===== החלת תוצאות מבחן =====
-// מטבעות: מטבע לכל תשובה נכונה, +15 על מעבר, +15 נוספים על 100
 export function applyExam(profileId, id, { correct, total, ms }, curriculumId) {
   const cfg = examConfig(curriculumId);
   const score = Math.round((correct / total) * 100);
   const passed = score >= cfg.pass;
   const rec = storage.recordExam(profileId, id, { score, correct, total, ms });
-  const coinsEarned = correct + (passed ? 15 : 0) + (score === 100 ? 15 : 0);
-  storage.addCoins(profileId, coinsEarned);
-  const newStickers = grantNewStickers(profileId, curriculumId);
-  return { score, passed, coinsEarned, newStickers, best: rec.best, attempts: rec.attempts, isBest: score >= rec.best };
+  return { score, passed, best: rec.best, attempts: rec.attempts, isBest: score >= rec.best };
 }

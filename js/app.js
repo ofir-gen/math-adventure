@@ -1,18 +1,13 @@
 // נקודת הכניסה: ניתוב מסכים, שחרור קול במחווה ראשונה, רישום service worker
 import { profileSelect } from './screens/profileSelect.js';
-import { worldMap } from './screens/worldMap.js';
+import { levels } from './screens/levels.js';
 import { exercise } from './screens/exercise.js';
-import { prizes } from './screens/prizes.js';
-import { character } from './screens/character.js';
-import { shop } from './screens/shop.js';
-import { parent } from './screens/parent.js';
-import { collection } from './screens/collection.js';
-import { room } from './screens/room.js';
 import { report } from './screens/report.js';
+import { parent } from './screens/parent.js';
+import { parentReport } from './screens/parentReport.js';
 import { unlock } from './audio.js';
-import { getProfile } from './storage.js';
 
-const screens = { profileSelect, worldMap, exercise, prizes, character, shop, parent, collection, room, report };
+const screens = { profileSelect, levels, exercise, report, parent, parentReport };
 const app = document.getElementById('app');
 const ctx = {
   state: { profileId: null },
@@ -22,16 +17,6 @@ const ctx = {
 function navigate(name, params = {}) {
   app.innerHTML = '';
   screens[name](app, ctx, params);
-  applyBg(name);
-}
-
-// רקע קנוי מהחנות גובר על ערכת העולם
-function applyBg(screenName) {
-  const pid = ctx.state.profileId;
-  const noBg = screenName === 'profileSelect';
-  const bg = !noBg && pid ? getProfile(pid).equipped?.bg : null;
-  if (bg) document.body.dataset.bg = bg;
-  else delete document.body.dataset.bg;
 }
 
 // אנדרואיד דורש מחווה לפני קול — הנגיעה הראשונה משחררת TTS ו-WebAudio

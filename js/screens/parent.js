@@ -1,7 +1,7 @@
 // אזור הורים: גיבוי והעברת התקדמות בין מכשירים (ייצוא/ייבוא קוד)
 import { el, topbarEl } from '../ui/components.js';
 import { getCurriculum } from '../curriculum/index.js';
-import { examConfig, examId, examRecord } from '../engine/rewards.js';
+import { examConfig, examId, examRecord, strengthsAndWeaknesses } from '../engine/rewards.js';
 import * as storage from '../storage.js';
 import { sfx, testVoice } from '../audio.js';
 
@@ -13,17 +13,17 @@ export function parent(container, ctx) {
   document.body.dataset.theme = 'home';
   delete document.body.dataset.bg;
   const screen = el('div', 'screen');
-  screen.appendChild(topbarEl('👨‍👩‍👧 הורים — גיבוי והעברה', () => ctx.navigate('profileSelect')));
+  screen.appendChild(topbarEl('👨‍👩‍👧 אזור הורים', () => ctx.navigate('profileSelect')));
 
   const scroll = el('div', 'parent-scroll');
 
-  // סיכום התקדמות נוכחית
-  scroll.appendChild(el('div', 'section-title', 'ההתקדמות במכשיר הזה'));
+  // סיכום התקדמות + כניסה לדוח המפורט
+  scroll.appendChild(el('div', 'section-title', '📊 דוח התקדמות — חוזקות וחולשות'));
   const summary = el('div', 'parent-summary');
-  for (const id of ['noya', 'alin']) {
+  for (const id of storage.profileIds()) {
     const p = storage.getProfile(id);
-    const total = getCurriculum(p.curriculum).levels.length;
     const cur = getCurriculum(p.curriculum);
+    const total = cur.levels.length;
     const done = cur.levels.filter(l => (p.levels[l.id]?.stars || 0) > 0).length;
     let exams = '';
     const cfg = examConfig(p.curriculum);
@@ -33,8 +33,14 @@ export function parent(container, ctx) {
       const avg = recs.length ? Math.round(recs.reduce((s, r) => s + r.best, 0) / recs.length) : null;
       exams = ` · 📝 מבחנים: ${passed}/${cur.worlds.length} עברו${avg !== null ? ` (ממוצע ${avg})` : ''}`;
     }
-    summary.appendChild(el('div', 'psum-row',
-      `<b>${p.name}</b> (${cur.meta?.grade || ''}) — ⭐ ${p.totals.stars} כוכבים · ${done}/${total} שלבים · 🪙 ${p.coins}${exams}`));
+    const sw = strengthsAndWeaknesses(p, p.curriculum, 2);
+    const weak = sw.weaknesses.length ? ` · ⚠️ לתרגול: ${sw.weaknesses.map(x => x.level.title).join(', ')}` : '';
+    const row = el('div', 'psum-row');
+    row.innerHTML = `<div><b>${p.name}</b> (${cur.meta?.grade || ''}) — ⭐ ${p.totals.stars} · ${done}/${total} שלבים · ${p.totals.questions} שאלות${exams}${weak}</div>`;
+    const btn = el('button', 'btn primary psum-btn', `📊 הדוח המפורט של ${p.name}`);
+    btn.addEventListener('click', () => { sfx.tap(); ctx.navigate('parentReport', { profileId: id }); });
+    row.appendChild(btn);
+    summary.appendChild(row);
   }
   scroll.appendChild(summary);
 

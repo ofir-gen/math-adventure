@@ -60,27 +60,6 @@ body[data-theme="numbers"] { background: linear-gradient(170deg, #ffd6a0 0%, #f5
 body[data-theme="savanna"] { background: linear-gradient(170deg, #ffe9a8 0%, #e8c06f 50%, #b8923f 100%); }
 body[data-theme="space"] { color: #f0ecff; }
 
-/* רקעים מהחנות — גוברים על ערכת העולם (מוגדרים אחרי ערכות הנושא) */
-body[data-bg="bg_sunset"] { background: linear-gradient(170deg, #ffc98a 0%, #f78aa8 55%, #9c5fb0 100%); }
-body[data-bg="bg_candy"] {
-  background:
-    radial-gradient(circle at 20% 25%, rgba(255,255,255,0.35) 0 14px, transparent 15px),
-    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.3) 0 18px, transparent 19px),
-    radial-gradient(circle at 45% 85%, rgba(255,255,255,0.28) 0 11px, transparent 12px),
-    radial-gradient(circle at 88% 20%, rgba(255,255,255,0.3) 0 9px, transparent 10px),
-    linear-gradient(170deg, #ffd1ec 0%, #f78cc0 55%, #b07fd8 100%);
-}
-body[data-bg="bg_unicorn"] { background: linear-gradient(170deg, #ffb3c8 0%, #ffd9a8 30%, #fdf3b0 50%, #b3e8c8 70%, #a8c8f5 100%); }
-body[data-bg="bg_night"] {
-  background-color: #1d1840;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,0.9) 0 1.2px, transparent 2px),
-    radial-gradient(circle, rgba(255,255,255,0.55) 0 1px, transparent 1.8px),
-    linear-gradient(170deg, #34296e 0%, #1d1840 60%, #0f0c26 100%);
-  background-size: 130px 110px, 70px 90px, cover;
-  color: #f0ecff;
-}
-body[data-bg="bg_ocean"] { background: linear-gradient(170deg, #8ae3d8 0%, #4aa9d8 55%, #2a5fa0 100%); }
 
 #app {
   height: 100%;
@@ -207,103 +186,6 @@ button {
   transition: transform 0.12s;
 }
 .char-option:active { transform: scale(0.93); }
-
-/* ===== מסך בחירת נושא ===== */
-.subject-screen { align-items: center; }
-.subject-avatar { display: flex; justify-content: center; padding: 6px 0; }
-.subject-q {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  padding: 4px 0 14px;
-}
-.subject-cards {
-  display: flex;
-  gap: 18px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.subject-card {
-  background: var(--card);
-  border-radius: 26px;
-  box-shadow: var(--shadow);
-  width: min(190px, 40vw);
-  padding: 22px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  transition: transform 0.12s;
-}
-.subject-card:active { transform: scale(0.95); }
-.subject-card .subj-icon { font-size: 3.4rem; }
-.subject-card .subj-name { font-size: 1.5rem; font-weight: 800; }
-.subject-card .subj-meta { font-size: 1.05rem; color: #8a7ab0; font-weight: 700; }
-.subject-card.soon { opacity: 0.6; }
-.subject-card.soon .subj-meta { color: #c08a3a; }
-
-/* ===== מפת עולם ===== */
-.map-screen { overflow: hidden; }
-.world-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  flex-shrink: 0;
-  padding-bottom: 6px;
-}
-.world-nav .wname {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  min-width: 170px;
-  text-align: center;
-}
-.map-area {
-  flex: 1;
-  position: relative;
-  min-height: 0;
-  margin: 4px 0;
-}
-.map-path {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.level-node {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 800;
-  transition: transform 0.12s;
-}
-.level-node:active { transform: translate(-50%, -50%) scale(0.92); }
-.level-node.locked {
-  background: rgba(255,255,255,0.45);
-  color: rgba(58,42,93,0.45);
-  box-shadow: none;
-}
-.level-node .stars { font-size: 0.72rem; letter-spacing: -1px; line-height: 1; margin-top: 1px; }
-.level-node .stars .off { filter: grayscale(1); opacity: 0.45; }
-.map-footer {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-shrink: 0;
-}
-.map-footer .btn { font-size: 1.1rem; padding: 12px 18px; }
 
 /* ===== מסך תרגיל ===== */
 .ex-screen { position: relative; }
@@ -591,17 +473,6 @@ button {
 /* הקשה על עצמים (tapN) */
 .tap-group .obj.popped { transform: scale(0.55); opacity: 0.3; filter: grayscale(1); }
 
-/* דמות מלווה בפינה */
-.companion {
-  position: absolute;
-  bottom: 10px;
-  inset-inline-start: 10px;
-  pointer-events: none;
-  z-index: 5;
-}
-.companion.bounce { animation: bounce 0.55s; }
-.companion.wiggle { animation: wiggle 0.55s; }
-
 /* משוב */
 .feedback-toast {
   position: absolute;
@@ -616,55 +487,6 @@ button {
   z-index: 6;
   animation: floatUp 0.9s forwards;
 }
-
-/* ===== משחק הזיכרון ===== */
-.mem-screen { min-height: 0; }
-.mem-grid {
-  flex: 1;
-  display: grid;
-  gap: 8px;
-  align-content: center;
-  justify-content: center;
-  justify-items: center;
-  padding: 6px;
-  min-height: 0;
-  overflow: auto;
-}
-.mem-card {
-  width: clamp(46px, 16vw, 88px);
-  aspect-ratio: 1;
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  position: relative;
-  background: transparent;
-  padding: 0;
-  transition: transform 0.1s;
-}
-.mem-card:active { transform: scale(0.95); }
-.mem-card .mem-face, .mem-card .mem-back {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  transition: opacity 0.18s, transform 0.18s;
-}
-.mem-card .mem-back {
-  background: linear-gradient(135deg, #9b6ce8, #7c4dcc);
-  color: #fff;
-  font-size: 1.5rem;
-  opacity: 1;
-}
-.mem-card .mem-face {
-  background: var(--card);
-  font-size: clamp(1.5rem, 7vw, 2.7rem);
-  opacity: 0;
-  transform: scale(0.6);
-}
-.mem-card.flipped .mem-back, .mem-card.matched .mem-back { opacity: 0; }
-.mem-card.flipped .mem-face, .mem-card.matched .mem-face { opacity: 1; transform: scale(1); }
-.mem-card.matched .mem-face { background: #d9f7e4; animation: starPop 0.45s; }
 
 /* ===== מסך סיום סבב ===== */
 .results {
@@ -700,363 +522,6 @@ button {
 }
 .reward-pop .remoji { font-size: 2.2rem; }
 .results .actions { display: flex; gap: 14px; }
-
-/* ===== אלבום מדבקות ===== */
-.sticker-grid {
-  flex: 1;
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-  gap: 12px;
-  padding: 4px 2px 16px;
-  align-content: start;
-}
-.sticker {
-  background: var(--card);
-  border-radius: 18px;
-  box-shadow: var(--shadow);
-  padding: 12px 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  text-align: center;
-}
-.sticker .semoji { font-size: 2.6rem; }
-.sticker .sname { font-size: 0.85rem; font-weight: 700; line-height: 1.2; }
-.sticker.locked { background: rgba(255,255,255,0.4); box-shadow: none; }
-.sticker.locked .semoji { filter: grayscale(1); opacity: 0.4; }
-.sticker.locked .sname { opacity: 0.5; }
-
-/* ===== הבית של הדמות ===== */
-.char-home-scroll {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 20px;
-}
-.char-display.petable {
-  background: none;
-  border: none;
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-.char-display.petable:active { transform: scale(0.96); }
-.pet-hint { color: #fff; font-weight: 700; font-size: 1rem; text-shadow: 0 1px 4px rgba(0,0,0,0.25); }
-.float-heart {
-  position: absolute;
-  top: 30%;
-  font-size: 1.8rem;
-  pointer-events: none;
-  animation: floatHeart 1.1s ease-out forwards;
-}
-@keyframes floatHeart {
-  0% { opacity: 0; transform: translateY(0) scale(0.5); }
-  25% { opacity: 1; transform: translateY(-10px) scale(1.1); }
-  100% { opacity: 0; transform: translateY(-70px) scale(0.9); }
-}
-.name-row { display: flex; gap: 10px; }
-.name-row .btn { font-size: 1.1rem; padding: 10px 18px; }
-.dress-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.25);
-  padding-top: 8px;
-}
-.dress-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: min(540px, 92vw);
-  background: rgba(255,255,255,0.5);
-  border-radius: 16px;
-  padding: 6px 10px;
-}
-.dress-label { font-weight: 800; color: var(--text); min-width: 56px; font-size: 0.95rem; }
-.dress-chips { display: flex; gap: 7px; overflow-x: auto; padding: 2px; flex: 1; }
-.dress-chip {
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid transparent;
-}
-.dress-chip.active { border-color: var(--gold); }
-
-/* ===== החדר של הדמות ===== */
-.room-scroll { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 18px; }
-.trophy-shelf { width: min(540px, 92vw); position: relative; padding-top: 6px; }
-.shelf-items { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: 1.7rem; min-height: 32px; align-items: flex-end; }
-.shelf-empty { text-align: center; color: #fff; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,0.25); padding-bottom: 4px; }
-.shelf-board { height: 10px; background: linear-gradient(#c79a6a, #a87c4f); border-radius: 4px; box-shadow: var(--shadow); }
-.room-scene {
-  position: relative;
-  width: min(460px, 94vw);
-  height: 320px;
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-/* קיר ורצפה — סגנון לפי data-wall / data-floor */
-.room-wall { position: absolute; left: 0; right: 0; top: 0; height: 60%; background: #fbe7d2; }
-.room-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: #e8c9a0; }
-.room-scene[data-wall="wp_pink"] .room-wall { background: #ffd6ea; }
-.room-scene[data-wall="wp_sky"] .room-wall { background: #cfe9fb; }
-.room-scene[data-wall="wp_stripes"] .room-wall { background: repeating-linear-gradient(90deg, #ffe0ef 0 16px, #ffc9e2 16px 32px); }
-.room-scene[data-wall="wp_dots"] .room-wall { background-color: #e8d6fb; background-image: radial-gradient(#fff 22%, transparent 24%); background-size: 24px 24px; }
-.room-scene[data-wall="wp_stars"] .room-wall { background-color: #3a2e6e; background-image: radial-gradient(#ffd54a 13%, transparent 15%); background-size: 30px 30px; }
-.room-scene[data-floor="fl_wood"] .room-floor { background: repeating-linear-gradient(90deg, #d8a86a 0 26px, #cf9d5e 26px 28px); }
-.room-scene[data-floor="fl_pink"] .room-floor { background: #f7b8d4; }
-.room-scene[data-floor="fl_green"] .room-floor { background: #9fdca0; }
-.room-scene[data-floor="fl_blue"] .room-floor { background: #9fc8e8; }
-.room-scene[data-floor="fl_checker"] .room-floor { background-color: #f0d8b0; background-image: conic-gradient(#d8b888 0 25%, transparent 0 50%, #d8b888 0 75%, transparent 0); background-size: 40px 40px; }
-.room-char { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 3; }
-.room-decor { position: absolute; line-height: 1; z-index: 2; }
-.decor-art { top: 8%; left: 13%; font-size: 3.6rem; }
-.decor-window { top: 7%; left: 50%; transform: translateX(-50%); font-size: 4rem; }
-.decor-shelf { top: 10%; right: 11%; font-size: 3.4rem; }
-.decor-bed { bottom: 4%; left: 1%; font-size: 5.6rem; }
-.decor-plant { bottom: 4%; right: 2%; font-size: 5rem; }
-.decor-lamp { bottom: 4%; right: 25%; font-size: 4.4rem; }
-.decor-toy { bottom: 4%; left: 25%; font-size: 3.8rem; z-index: 1; }
-.room-char.petable { background: none; border: none; padding: 0; cursor: pointer; }
-.room-scene.sleeping { filter: brightness(0.55); transition: filter 0.4s; }
-.mood-face { position: absolute; top: 6px; right: 10px; font-size: 1.9rem; z-index: 3; }
-.mood-bubble {
-  position: absolute; left: 56%; bottom: 130px; font-size: 1.5rem; z-index: 3;
-  background: #fff; border-radius: 50% 50% 50% 4px; padding: 4px 8px; box-shadow: var(--shadow);
-  animation: giftPulse 0.9s infinite alternate;
-}
-.fly-food, .fly-ball { position: absolute; left: 42%; top: 30%; font-size: 2rem; pointer-events: none; animation: flyToMouth 0.8s ease-in forwards; }
-.fly-ball { animation: ballBounce 0.9s ease-in-out forwards; }
-.bath-bubble { position: absolute; top: 40%; font-size: 1.6rem; pointer-events: none; animation: floatHeart 1.1s ease-out forwards; }
-.sleep-z { position: absolute; top: 18%; left: 56%; font-size: 2.4rem; pointer-events: none; animation: floatHeart 1.3s ease-out forwards; z-index: 4; }
-@keyframes flyToMouth { 0% { opacity: 0; transform: translateY(-30px) scale(1.3); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(20px) scale(0.4); } }
-@keyframes ballBounce { 0% { opacity: 0; transform: translateX(-40px) translateY(0); } 30% { opacity: 1; } 60% { transform: translateX(0) translateY(-20px); } 100% { opacity: 0; transform: translateX(30px) translateY(10px); } }
-
-/* מדי הטיפול */
-.care-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; width: min(460px, 94vw); }
-.care-bar { display: flex; align-items: center; gap: 8px; }
-.care-ic { font-size: 1.3rem; }
-.care-track { flex: 1; height: 16px; background: rgba(255,255,255,0.5); border-radius: 8px; overflow: hidden; }
-.care-fill { height: 100%; background: linear-gradient(90deg, #6fd98a, #3dbb6e); border-radius: 8px; transition: width 0.4s; }
-.care-fill.low { background: linear-gradient(90deg, #ffb36f, #f5854a); }
-.care-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.care-btn {
-  background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
-  font-size: 1.9rem; padding: 8px 14px; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  transition: transform 0.1s;
-}
-.care-btn span { font-size: 0.85rem; font-weight: 800; color: var(--text); }
-.care-btn:active { transform: scale(0.93); }
-.food-picker { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; background: rgba(255,255,255,0.5); border-radius: 18px; padding: 8px 12px; }
-.food-chip { width: 50px; height: 50px; border-radius: 14px; background: var(--card); box-shadow: var(--shadow); font-size: 1.9rem; }
-.food-chip:active { transform: scale(0.92); }
-
-/* ===== מסך דמות ===== */
-.char-screen { justify-content: center; align-items: center; gap: 16px; text-align: center; }
-.char-stage-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-.char-display { animation: bounce 1.2s infinite ease-in-out; }
-.growth-bar {
-  width: min(340px, 80vw);
-  height: 26px;
-  background: rgba(255,255,255,0.35);
-  border-radius: 13px;
-  overflow: hidden;
-}
-.growth-bar .fill {
-  height: 100%;
-  background: var(--gold);
-  border-radius: 13px;
-  transition: width 0.6s;
-}
-.growth-hint { color: #fff; font-weight: 700; font-size: 1.05rem; text-shadow: 0 1px 4px rgba(0,0,0,0.25); }
-.char-switch { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding-top: 8px; }
-.char-switch-btn {
-  background: var(--card);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 6px 10px;
-  border: 3px solid transparent;
-  transition: transform 0.1s;
-}
-.char-switch-btn:active { transform: scale(0.92); }
-.char-switch-btn.active { border-color: var(--gold); }
-.char-item svg { margin-bottom: -4px; }
-
-/* ===== חנות ===== */
-.shop-scroll {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  padding-bottom: 16px;
-}
-.coin-badge {
-  background: var(--card);
-  border-radius: 26px;
-  box-shadow: var(--shadow);
-  font-size: 1.15rem;
-  font-weight: 800;
-  padding: 10px 16px;
-  flex-shrink: 0;
-}
-.shop-preview {
-  display: flex;
-  justify-content: center;
-  padding: 6px 0 2px;
-}
-.section-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  padding: 14px 4px 8px;
-}
-.shop-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-  gap: 12px;
-}
-.shop-grid.egg-row { grid-template-columns: minmax(150px, 240px); justify-content: center; }
-.shop-item {
-  background: var(--card);
-  border-radius: 18px;
-  box-shadow: var(--shadow);
-  padding: 12px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  transition: transform 0.1s;
-  border: 3px solid transparent;
-}
-.shop-item:active { transform: scale(0.94); }
-.shop-item .sicon { font-size: 2.3rem; }
-.shop-item .sname { font-size: 0.95rem; font-weight: 700; }
-.shop-item .sprice {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--purple-dark);
-  background: #f3edfc;
-  border-radius: 12px;
-  padding: 3px 12px;
-}
-.shop-item.owned .sprice { background: #e3f6ea; color: #1f8a4d; }
-.shop-item.worn { border-color: var(--gold); }
-.shop-item.shake { animation: shake 0.4s; }
-.egg-card .sicon { font-size: 3rem; }
-.collection-btn { align-self: center; font-size: 1.15rem; }
-.set-card svg { margin-bottom: -2px; }
-
-/* ספר אוסף */
-.collection-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-bottom: 18px; }
-.collection-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
-  gap: 10px;
-  padding: 4px 2px 10px;
-}
-.coll-cell {
-  background: var(--card);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 10px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-height: 84px;
-  justify-content: center;
-}
-.coll-cell.locked { background: rgba(255,255,255,0.4); box-shadow: none; }
-.coll-emoji { font-size: 2.2rem; }
-.coll-q { font-size: 2rem; opacity: 0.5; }
-.coll-name { font-size: 0.78rem; font-weight: 700; text-align: center; line-height: 1.15; }
-
-.egg-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(40, 20, 90, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-.egg-anim {
-  font-size: 6rem;
-  animation: eggWiggle 0.35s infinite;
-}
-.egg-reveal {
-  background: var(--card);
-  border-radius: 26px;
-  box-shadow: var(--shadow);
-  padding: 28px 38px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-.egg-reveal .sicon { font-size: 4rem; }
-.egg-reveal .sname { font-size: 1.3rem; font-weight: 800; }
-@keyframes eggWiggle {
-  0%, 100% { transform: rotate(-8deg); }
-  50% { transform: rotate(8deg) translateY(-4px); }
-}
-.egg-reveal .rarity-banner { font-size: 1.1rem; font-weight: 800; padding: 3px 14px; border-radius: 12px; }
-.egg-reveal.rarity-common .rarity-banner { background: #eee; color: #555; }
-.egg-reveal.rarity-rare { box-shadow: 0 0 0 4px #7ec8f0, var(--shadow); }
-.egg-reveal.rarity-rare .rarity-banner { background: #d6ecfb; color: #2a7fb8; }
-.egg-reveal.rarity-legendary { box-shadow: 0 0 0 5px #ffd54a, 0 0 30px #ffd54a; animation: legendGlow 0.8s infinite alternate; }
-.egg-reveal.rarity-legendary .rarity-banner { background: #fff2c8; color: #c08a1a; }
-@keyframes legendGlow { from { box-shadow: 0 0 0 5px #ffd54a, 0 0 20px #ffd54a; } to { box-shadow: 0 0 0 5px #ffce3d, 0 0 40px #ffce3d; } }
-
-/* מתנה יומית */
-.daily-gift {
-  background: linear-gradient(135deg, #ffd86f, #ff9ec4);
-  color: var(--purple-dark);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
-  font-size: 1.25rem;
-  font-weight: 800;
-  padding: 12px 24px;
-  animation: giftPulse 1s infinite alternate;
-}
-@keyframes giftPulse { from { transform: scale(1); } to { transform: scale(1.05); } }
-
-/* חגיגת התפתחות */
-.evolve-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(40, 20, 90, 0.6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  z-index: 60;
-  animation: popIn 0.3s;
-}
-.evolve-char { animation: bounce 0.7s 2; }
-.evolve-title { font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 3px 10px rgba(0,0,0,0.4); }
-.evolve-sub { font-size: 1.3rem; font-weight: 800; color: #ffe9a8; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
 
 /* ===== אזור הורים ===== */
 .parent-link {
@@ -1147,31 +612,7 @@ button {
   .equation { font-size: 2rem; padding: 12px 22px; }
   .numpad button { font-size: 1.4rem; padding: 8px 0; }
   .obj-group .obj { font-size: 1.9rem; }
-  .companion { display: none; }
 }
-
-/* ===== כיתה ג': תחנת מבחן במפה ===== */
-.level-node.exam {
-  width: 86px;
-  height: 86px;
-  background: linear-gradient(135deg, #ffd86f, #ffb340);
-  border: 4px solid #fff;
-  font-size: 1.7rem;
-}
-.level-node.exam .exam-lbl { font-size: 0.8rem; font-weight: 800; line-height: 1; margin-top: 2px; color: var(--purple-dark); }
-.level-node.exam.passed { background: linear-gradient(135deg, #8fe3a8, #3dbb6e); }
-.level-node.exam.passed .exam-lbl { color: #fff; }
-.level-node.exam.locked { background: rgba(255,255,255,0.45); border-color: transparent; }
-.level-node.exam.locked .exam-lbl { color: rgba(58,42,93,0.5); }
-.map-gift {
-  position: absolute;
-  top: 6px;
-  inset-inline-end: 4px;
-  font-size: 1rem;
-  padding: 8px 14px;
-  z-index: 3;
-}
-.profile-card .pgrade { font-size: 0.95rem; color: var(--purple); font-weight: 700; margin-top: -4px; }
 
 /* ===== מבחן: פתיח, שעון עצר, משוב ===== */
 .exam-intro {
@@ -1378,4 +819,223 @@ button {
   .sample-box .frac-svg, .sample-box .shape-svg { width: 130px; height: auto; }
   .equation.long { font-size: 1.8rem; }
   .compare-box { font-size: 2.2rem; }
+}
+
+/* ===== רשימת השלבים (קוביות לפי עולמות) ===== */
+.total-badge {
+  background: var(--card);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  padding: 10px 16px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.profile-card .pgrade { font-size: 0.95rem; color: var(--purple); font-weight: 700; margin-top: -4px; }
+.profile-card .avatar .placeholder {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: linear-gradient(135deg, #f3ecff, #d9c9f8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.2rem;
+}
+.levels-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+.levels-actions { display: flex; gap: 10px; }
+.levels-actions .btn { font-size: 1.05rem; padding: 10px 18px; }
+.rec-card {
+  width: min(640px, 94vw);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #ffd86f, #ffb340);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 12px 16px;
+  text-align: start;
+  color: var(--purple-dark);
+  transition: transform 0.1s;
+}
+.rec-card:active { transform: scale(0.98); }
+.rec-card.weak { background: linear-gradient(135deg, #ffc9a8, #ff9e7a); }
+.rec-card.review { background: linear-gradient(135deg, #c8e8ff, #8ec5f5); }
+.rec-card .rec-icon { font-size: 2rem; }
+.rec-card .rec-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.rec-card .rec-title { font-size: 1.15rem; font-weight: 900; }
+.rec-card .rec-sub { font-size: 0.9rem; font-weight: 700; opacity: 0.85; }
+.rec-card .rec-go { font-size: 1.4rem; font-weight: 900; transform: scaleX(-1); }
+.world-section { width: min(640px, 94vw); display: flex; flex-direction: column; gap: 8px; }
+.world-section.locked { opacity: 0.7; }
+.world-head, .rep-world-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  padding: 6px 4px 0;
+}
+.world-head .ws-icon, .rep-world-head .ws-icon { font-size: 1.6rem; }
+.world-head .ws-name, .rep-world-head .ws-name { flex: 1; font-size: 1.25rem; font-weight: 800; }
+.world-head .ws-meta, .rep-world-head .ws-meta { font-size: 0.95rem; font-weight: 800; white-space: nowrap; }
+.world-hint {
+  background: rgba(255,255,255,0.35);
+  border-radius: 16px;
+  padding: 12px 16px;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+}
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.level-tile {
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 12px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  min-height: 118px;
+  transition: transform 0.1s;
+  border: 3px solid transparent;
+}
+.level-tile:active { transform: scale(0.96); }
+.level-tile.locked { background: rgba(255,255,255,0.45); color: rgba(58,42,93,0.5); box-shadow: none; }
+.level-tile.done { border-color: var(--gold); }
+.level-tile .lt-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--purple); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1.05rem;
+}
+.level-tile.locked .lt-num { background: rgba(124,77,204,0.35); }
+.level-tile .lt-title { font-size: 0.95rem; font-weight: 800; text-align: center; line-height: 1.25; flex: 1; display: flex; align-items: center; }
+.level-tile .lt-stars { font-size: 0.85rem; letter-spacing: -1px; }
+.level-tile .lt-stars .off { filter: grayscale(1); opacity: 0.4; }
+.level-tile.exam {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  min-height: 0;
+  padding: 12px 16px;
+  gap: 12px;
+  background: linear-gradient(135deg, #ffd86f, #ffb340);
+  color: var(--purple-dark);
+  border-color: #fff;
+}
+.level-tile.exam .lt-num { background: rgba(255,255,255,0.85); color: var(--purple-dark); font-size: 1.3rem; width: 42px; height: 42px; }
+.level-tile.exam .lt-title { text-align: start; font-size: 1.1rem; flex: 1; }
+.level-tile.exam .lt-stars { font-size: 0.9rem; font-weight: 800; letter-spacing: 0; white-space: nowrap; }
+.level-tile.exam.passed { background: linear-gradient(135deg, #8fe3a8, #3dbb6e); color: #fff; }
+.level-tile.exam.locked { background: rgba(255,255,255,0.45); color: rgba(58,42,93,0.55); border-color: transparent; }
+@media (max-width: 420px) {
+  .level-grid { grid-template-columns: repeat(2, 1fr); }
+  .level-tile.exam { flex-wrap: wrap; }
+}
+
+/* ===== דוח הורים ===== */
+.tabs { display: flex; gap: 8px; justify-content: center; padding-bottom: 8px; flex-shrink: 0; }
+.tab {
+  background: rgba(255,255,255,0.35);
+  color: #fff;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.tab.active { background: var(--card); color: var(--purple-dark); box-shadow: var(--shadow); }
+.report-scroll.wide > * { width: min(680px, 94vw); }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.kpi {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 10px 6px;
+  display: flex; flex-direction: column; align-items: center;
+  color: var(--text);
+}
+.kpi .kpi-val { font-size: 1.5rem; font-weight: 900; color: var(--purple-dark); line-height: 1.1; }
+.kpi .kpi-lbl { font-size: 0.8rem; font-weight: 700; text-align: center; }
+.report-empty {
+  background: var(--card); border-radius: 16px; box-shadow: var(--shadow);
+  padding: 14px 18px; font-weight: 700; color: var(--text); text-align: center;
+}
+.sw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sw-card {
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  color: var(--text);
+  border-top: 6px solid var(--good);
+}
+.sw-card.weak { border-top-color: #f5854a; }
+.sw-card .sw-title { font-weight: 900; font-size: 1.1rem; margin-bottom: 6px; }
+.sw-card ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
+.sw-card li { line-height: 1.4; }
+.sw-card .li-pct { font-weight: 900; color: var(--purple-dark); margin-inline-start: 6px; }
+.muted { color: #7d6f9e; font-weight: 600; font-size: 0.9rem; }
+.rec-line {
+  background: var(--card); border-radius: 16px; box-shadow: var(--shadow);
+  padding: 10px 14px; color: var(--text); font-weight: 600; font-size: 0.98rem;
+}
+.rep-world { display: flex; flex-direction: column; gap: 8px; }
+.rep-note { padding: 0 6px 4px; color: #fff; opacity: 0.85; }
+.skill-row {
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  color: var(--text);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.skill-row .sk-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.skill-row .sk-title { font-weight: 800; font-size: 1rem; }
+.sk-status { font-size: 0.8rem; font-weight: 800; padding: 3px 9px; border-radius: 12px; white-space: nowrap; background: #eee6fb; color: var(--purple-dark); }
+.sk-status.strong { background: #d9f7e4; color: #1f8a4d; }
+.sk-status.ok { background: #e6f4ff; color: #1f5f8a; }
+.sk-status.weak { background: #ffe1d6; color: #b0431a; }
+.sk-status.developing { background: #fff3cf; color: #8a5a00; }
+.sk-status.new { background: #efefef; color: #777; }
+.sk-bar { height: 10px; background: #eee6fb; border-radius: 5px; overflow: hidden; }
+.sk-fill { height: 100%; background: var(--purple); border-radius: 5px; transition: width 0.4s; }
+.skill-row.weak .sk-fill { background: #f5854a; }
+.skill-row.strong .sk-fill { background: var(--good); }
+.skill-row .sk-meta { font-size: 0.85rem; font-weight: 600; color: #6c5a94; }
+.recent-row {
+  background: var(--card); border-radius: 12px; box-shadow: var(--shadow);
+  padding: 8px 12px; color: var(--text);
+  display: flex; align-items: center; gap: 10px; font-size: 0.92rem;
+}
+.recent-row .rr-date { color: #7d6f9e; font-weight: 700; min-width: 42px; }
+.recent-row .rr-title { flex: 1; font-weight: 800; }
+.recent-row .rr-meta { color: #6c5a94; font-weight: 600; white-space: nowrap; }
+.recent-row .rr-stars { letter-spacing: -2px; }
+.psum-row { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.psum-btn { font-size: 1rem !important; padding: 10px 16px !important; }
+@media (max-width: 520px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .sw-row { grid-template-columns: 1fr; }
+}
+
+/* כותרת סקשן (אזור הורים) */
+.section-title {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  align-self: flex-start;
+  padding-top: 6px;
 }

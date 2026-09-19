@@ -13,7 +13,7 @@ export function report(container, ctx, params = {}) {
   const cfg = examConfig(curId);
 
   const screen = el('div', 'screen');
-  screen.appendChild(topbarEl(`📋 התעודה של ${profile.name}`, () => ctx.navigate('worldMap', { world: params.fromWorld })));
+  screen.appendChild(topbarEl(`📋 התעודה של ${profile.name}`, () => ctx.navigate('levels', { world: params.fromWorld })));
 
   const scroll = el('div', 'report-scroll');
 
